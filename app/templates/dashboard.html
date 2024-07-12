@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}Panel de Control - Aplicación de Seguimiento de Producción{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="header-container">
+    <a href="{{ url_for('main.logout') }}" class="back-icon">←</a>
+    <h1 class="dashboard-title">{{ welcome_message }}, {{ user.name }}</h1>
+</div>
+
+<div id="message-container"></div>
+
+<a href="{{ url_for('main.start_new_task') }}" id="newTaskBtn" class="btn btn-primary mb-3 btn-nueva-tarea {% if active_task %}inactive{% endif %}">Nueva Tarea</a>
+
+<h2 class="section-header">Tareas Activas</h2>
+<div class="task-section">
+    {% if active_task %}
+        <table class="task-table table-striped">
+            <thead>
+                <tr>
+                    <th class="casa-column">Casa</th>
+                    <th>Actividad</th>
+                    <th>Inicio</th>
+                    <th>Ubicación</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="casa-column">
+                        <div class="casa-info">
+                            <span class="project">{{ active_task.project }}</span>
+                            <span class="details">Casa #{{ active_task.house_number }} | Módulo {{ active_task.n_modulo }}</span>
+                        </div>
+                    </td>
+                    <td>{{ active_task.activity }}</td>
+                    <td>{{ active_task.start_time }}</td>
+                    <td>
+                        <div class="ubicacion-info">
+                            <span class="estacion">Estación {{ active_task.station }}</span>
+                            <span class="linea">Línea {{ active_task.line }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn btn-warning btn-sm" onclick="showPauseOptions('{{ active_task.task_id }}')">Pausar</button>
+                            <form action="{{ url_for('main.finish_task') }}" method="post">
+                                <input type="hidden" name="task_id" value="{{ active_task.task_id }}">
+                                <button type="submit" class="btn btn-danger btn-sm">Finalizar</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    {% else %}
+        <p class="no-tasks">No hay tareas activas en el momento.</p>
+    {% endif %}
+</div>
+
+<h2 class="section-header">Tareas en Pausa</h2>
+<div class="task-section">
+    {% if paused_tasks %}
+        <table class="task-table table-striped">
+            <thead>
+                <tr>
+                    <th class="casa-column">Casa</th>
+                    <th>Actividad</th>
+                    <th>Inicio</th>
+                    <th>Ubicación</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in paused_tasks %}
+                    <tr>
+                        <td class="casa-column">
+                            <div class="casa-info">
+                                <span class="project">{{ task.project }}</span>
+                                <span class="details">Casa #{{ task.house_number }} | Módulo {{ task.n_modulo }}</span>
+                            </div>
+                        </td>
+                        <td>{{ task.activity }}</td>
+                        <td>{{ task.start_time }}</td>
+                        <td>
+                            <div class="ubicacion-info">
+                                <span class="estacion">Estación {{ task.station }}</span>
+                                <span class="linea">Línea {{ task.line }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="action-buttons">
+                                <form action="{{ url_for('main.resume_task') }}" method="post">
+                                    <input type="hidden" name="task_id" value="{{ task.task_id }}">
+                                    <button type="submit" class="btn btn-success btn-sm action-button">Reanudar</button>
+                                </form>
+                                <form action="{{ url_for('main.finish_task') }}" method="post">
+                                    <input type="hidden" name="task_id" value="{{ task.task_id }}">
+                                    <button type="submit" class="btn btn-danger btn-sm action-button">Finalizar</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p class="no-tasks">No hay tareas pausadas en el momento.</p>
+    {% endif %}
+</div>
+
+<!-- Modal for pause options -->
+<div class="modal fade" id="pauseOptionsModal" tabindex="-1" aria-labelledby="pauseOptionsModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="pauseOptionsModalLabel">Opciones de Pausa</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="pauseForm" action="{{ url_for('main.pause_task') }}" method="post">
+                    <input type="hidden" id="pauseTaskId" name="task_id" value="">
+                    <div class="mb-3">
+                        <label for="pause_type" class="form-label">Razón de la pausa:</label>
+                        <select name="pause_type" id="pause_type" class="form-select" required>
+                            <option value="">Seleccionar razón</option>
+                            <option value="end_of_day">Fin del Día</option>
+                            <option value="lunch_break">Pausa para Almuerzo</option>
+                            <option value="lack_of_materials">Falta de Materiales</option>
+                            <option value="other">Otra Razón</option>
+                        </select>
+                    </div>
+                    <div id="materials_reason_input" style="display: none;">
+                        <label for="materials_reason" class="form-label">Especificar falta de materiales:</label>
+                        <input type="text" name="materials_reason" id="materials_reason" class="form-control" placeholder="Detallar qué materiales faltan">
+                    </div>
+                    <div id="other_reason_input" style="display: none;">
+                        <label for="other_reason" class="form-label">Especificar otra razón:</label>
+                        <input type="text" name="other_reason" id="other_reason" class="form-control" placeholder="Especificar razón">
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary">Confirmar Pausa</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function showPauseOptions(taskId) {
+        document.getElementById('pauseTaskId').value = taskId;
+        var pauseOptionsModal = new bootstrap.Modal(document.getElementById('pauseOptionsModal'));
+        pauseOptionsModal.show();
+    }
+
+    document.getElementById('pause_type').addEventListener('change', function() {
+        var materialsReasonInput = document.getElementById('materials_reason_input');
+        var otherReasonInput = document.getElementById('other_reason_input');
+        
+        if (this.value === 'lack_of_materials') {
+            materialsReasonInput.style.display = 'block';
+            otherReasonInput.style.display = 'none';
+        } else if (this.value === 'other') {
+            materialsReasonInput.style.display = 'none';
+            otherReasonInput.style.display = 'block';
+        } else {
+            materialsReasonInput.style.display = 'none';
+            otherReasonInput.style.display = 'none';
+        }
+    });
+
+    function showMessage(message, category = 'info') {
+        const messageContainer = document.getElementById('message-container');
+        const messageElement = document.createElement('div');
+        messageElement.className = `alert alert-${category} flash-message`;
+        messageElement.role = 'alert';
+        messageElement.textContent = message;
+        messageContainer.appendChild(messageElement);
+
+        setTimeout(() => {
+            messageElement.style.opacity = '0';
+            setTimeout(() => {
+                messageElement.remove();
+            }, 500);
+        }, 5000);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    showMessage("{{ message }}", "{{ category }}");
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    });
+</script>
+{% endblock %}

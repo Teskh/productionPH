@@ -1,0 +1,91 @@
+.header-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.back-icon {
+    font-size: 24px;
+    text-decoration: none;
+    color: #2c3e50;
+    margin-right: 20px;
+}
+
+.dashboard-title {
+    color: #2c3e50;
+    font-weight: 700;
+    font-size: 2rem;
+    margin-bottom: 0;
+    flex-grow: 1;
+}
+
+.section-header {
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 1.5rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+.btn-nueva-tarea {
+    background-color: #e67e22;
+    border: none;
+    border-radius: 12px;
+    padding: 15px 32px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.btn-nueva-tarea:hover {
+    background-color: #d35400;
+}
+
+.btn-nueva-tarea.inactive {
+    opacity: 0.5;
+    background-color: #95a5a6;
+    cursor: not-allowed;
+}
+
+.task-table {
+    width: 100%;
+    margin-bottom: 1rem;
+    background-color: #ffffff;
+    border-radius: 12px;
+    overflow: hidden;
+    table-layout: fixed; /* Enable fixed table layout */
+}
+
+.task-table th,
+.task-table td {
+    padding: 0.75rem;
+    vertical-align: middle;
+    border-top: 1px solid #ecf0f1;
+    text-align: left; /* Left-align content */
+}
+
+.task-table thead th {
+    background-color: #34495e;
+    color: #ffffff;
+    border-bottom: 2px solid #2c3e50;
+}
+
+.no-tasks {
+    color: #7f8c8d;
+    font-style: italic;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: space-around;
+}
+
+.action-button {
+    width: 100%;
+    padding: 0.5rem 1rem;
+}
+
+.casa-column {
+    width: 20%; /* Adjust width as needed */
+}
+
+/* Add more styles as needed */
