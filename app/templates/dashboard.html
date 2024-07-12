@@ -43,7 +43,8 @@
                     <td>{{ active_task.activity }}</td>
                     <td>
                         {% if active_task.start_time is string %}
-                            <div>{{ active_task.start_time }}</div>
+                            <div>{{ active_task.start_time.split(' ')[0] }}</div>
+                            <div style="font-size: 0.9em; color: #6c757d;">{{ active_task.start_time.split(' ')[1] }}</div>
                         {% else %}
                             <div>{{ active_task.start_time.strftime('%Y-%m-%d') }}</div>
                             <div style="font-size: 0.9em; color: #6c757d;">{{ active_task.start_time.strftime('%H:%M') }}</div>
@@ -97,7 +98,8 @@
                         <td>{{ task.activity }}</td>
                         <td>
                             {% if task.start_time is string %}
-                                <div>{{ task.start_time }}</div>
+                                <div>{{ task.start_time.split(' ')[0] }}</div>
+                                <div style="font-size: 0.9em; color: #6c757d;">{{ task.start_time.split(' ')[1] }}</div>
                             {% else %}
                                 <div>{{ task.start_time.strftime('%Y-%m-%d') }}</div>
                                 <div style="font-size: 0.9em; color: #6c757d;">{{ task.start_time.strftime('%H:%M') }}</div>
