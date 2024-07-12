@@ -41,16 +41,44 @@
 
     <div class="mb-4">
         <label for="activity" class="form-label">Actividad:</label>
+        <div class="form-check form-switch mb-2">
+            <input class="form-check-input" type="checkbox" id="showOtherActivities">
+            <label class="form-check-label" for="showOtherActivities">Mostrar actividades fuera de mi especialidad</label>
+        </div>
         <select name="activity" id="activity" class="form-select" required>
             <option value="">Seleccionar actividad</option>
-            {% for activity in activities %}
-                <option value="{{ activity }}">{{ activity }}</option>
-            {% endfor %}
         </select>
     </div>
 
     <button type="submit" class="btn btn-primary w-100">Iniciar Tarea</button>
 </form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const activitySelect = document.getElementById('activity');
+        const showOtherActivitiesCheckbox = document.getElementById('showOtherActivities');
+        
+        const userActivities = {{ user_activities|tojson }};
+        const otherActivities = {{ other_activities|tojson }};
+
+        function updateActivityOptions(showOther) {
+            activitySelect.innerHTML = '<option value="">Seleccionar actividad</option>';
+            const activities = showOther ? otherActivities : userActivities;
+            activities.forEach(activity => {
+                const option = document.createElement('option');
+                option.value = activity;
+                option.textContent = activity;
+                activitySelect.appendChild(option);
+            });
+        }
+
+        updateActivityOptions(false);
+
+        showOtherActivitiesCheckbox.addEventListener('change', function() {
+            updateActivityOptions(this.checked);
+        });
+    });
+</script>
 {% endblock %}
 
 {% block extra_js %}
