@@ -48,10 +48,7 @@
                     <td>
                         <div class="action-buttons">
                             <button class="btn btn-warning btn-sm action-button text-white" onclick="showPauseOptions('{{ active_task.task_id }}')">Pausar</button>
-                            <form action="{{ url_for('main.finish_task') }}" method="post">
-                                <input type="hidden" name="task_id" value="{{ active_task.task_id }}">
-                                <button type="submit" class="btn btn-danger btn-sm action-button">Finalizar</button>
-                            </form>
+                            <button class="btn btn-danger btn-sm action-button" onclick="confirmFinishTask('{{ active_task.task_id }}')">Finalizar</button>
                         </div>
                     </td>
                 </tr>
@@ -94,14 +91,8 @@
                         </td>
                         <td>
                             <div class="action-buttons">
-                                <form action="{{ url_for('main.resume_task') }}" method="post">
-                                    <input type="hidden" name="task_id" value="{{ task.task_id }}">
-                                    <button type="submit" class="btn btn-success btn-sm action-button">Reanudar</button>
-                                </form>
-                                <form action="{{ url_for('main.finish_task') }}" method="post">
-                                    <input type="hidden" name="task_id" value="{{ task.task_id }}">
-                                    <button type="submit" class="btn btn-danger btn-sm action-button">Finalizar</button>
-                                </form>
+                                <button class="btn btn-success btn-sm action-button" onclick="resumeTask('{{ task.task_id }}')">Reanudar</button>
+                                <button class="btn btn-danger btn-sm action-button" onclick="confirmFinishTask('{{ task.task_id }}')">Finalizar</button>
                             </div>
                         </td>
                     </tr>
@@ -202,5 +193,33 @@
             {% endif %}
         {% endwith %}
     });
+
+    function confirmFinishTask(taskId) {
+        if (confirm('¿Estás seguro de que quieres finalizar esta tarea?')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = "{{ url_for('main.finish_task') }}";
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'task_id';
+            input.value = taskId;
+            form.appendChild(input);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+
+    function resumeTask(taskId) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = "{{ url_for('main.resume_task') }}";
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'task_id';
+        input.value = taskId;
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+    }
 </script>
 {% endblock %}
