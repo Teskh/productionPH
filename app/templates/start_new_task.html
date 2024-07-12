@@ -32,7 +32,7 @@
         <div id="moduloButtons" class="radio-group">
             {% for i in range(1, num_modulos + 1) %}
                 <div>
-                    <input type="radio" name="n_modulo" id="modulo{{ i }}" value="{{ i }}" {% if i == last_n_modulo|int %}checked{% endif %} required>
+                    <input type="radio" name="n_modulo" id="modulo{{ i }}" value="{{ i }}" {% if i == (last_n_modulo|int) %}checked{% endif %} required>
                     <label for="modulo{{ i }}">{{ i }}</label>
                 </div>
             {% endfor %}
