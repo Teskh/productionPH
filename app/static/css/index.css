@@ -1,0 +1,96 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+
+body {
+    background-color: #f0f0f0;
+    font-family: 'Roboto', sans-serif;
+}
+
+.settings-link {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 24px;
+    color: #2c3e50;
+    text-decoration: none;
+}
+
+.logo {
+    display: block;
+    margin: 0 auto 20px;
+    max-width: 150px;
+}
+
+.index-title {
+    color: #2c3e50;
+    text-align: center;
+    font-weight: 700;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-label {
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.form-select, .form-control {
+    margin-bottom: 1.5rem;
+    border: 1px solid #bdc3c7;
+    border-radius: 12px;
+    padding: 15px;
+    font-size: 16px;
+}
+
+.form-select:focus, .form-control:focus {
+    box-shadow: none;
+    border-color: #3498db;
+}
+
+.form-select:disabled {
+    background-color: #ecf0f1;
+    color: #7f8c8d;
+}
+
+.info-box {
+    background-color: #ecf0f1;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.line-station {
+    color: #e67e22;
+    font-weight: bold;
+}
+
+.error-message {
+    background-color: #e74c3c;
+    color: white;
+    padding: 10px;
+    border-radius: 12px;
+    margin-top: 20px;
+}
+
+.input-group .form-control {
+    height: 50px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.input-group .btn {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+}
+
+.btn-primary {
+    background-color: #e67e22;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #d35400;
+}

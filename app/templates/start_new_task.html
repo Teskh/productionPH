@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Iniciar Nueva Tarea - Aplicación de Seguimiento de Producción{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/start_new_task.css') }}">
+{% endblock %}
+
+{% block content %}
+<button class="back-arrow" onclick="window.history.back()">←</button>
+<h1 class="task-title">Iniciar Nueva Tarea</h1>
+<form action="{{ url_for('main.start_new_task') }}" method="post">
+    <div class="mb-4">
+        <label class="form-label">Proyecto:</label>
+        <div class="radio-group">
+            {% for project in projects %}
+                <div>
+                    <input type="radio" name="project" id="project{{ loop.index }}" value="{{ project }}" {% if project == last_project %}checked{% endif %} required>
+                    <label for="project{{ loop.index }}">{{ project }}</label>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <label for="houseNumber" class="form-label">Número de Casa:</label>
+        <input type="number" id="houseNumber" name="house_number" class="form-control" required min="1" value="{{ last_house_number }}">
+    </div>
+
+    <div class="mb-4">
+        <label class="form-label">Nº módulo:</label>
+        <div id="moduloButtons" class="radio-group">
+            {% for i in range(1, num_modulos + 1) %}
+                <div>
+                    <input type="radio" name="n_modulo" id="modulo{{ i }}" value="{{ i }}" {% if i == last_n_modulo|int %}checked{% endif %} required>
+                    <label for="modulo{{ i }}">{{ i }}</label>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="mb-4">
+        <label for="activity" class="form-label">Actividad:</label>
+        <select name="activity" id="activity" class="form-select" required>
+            <option value="">Seleccionar actividad</option>
+            {% for activity in activities %}
+                <option value="{{ activity }}">{{ activity }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">Iniciar Tarea</button>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        function updateModuloButtons(numberOfModules) {
+            var moduloButtons = $('#moduloButtons');
+            moduloButtons.empty();
+            for (var i = 1; i <= numberOfModules; i++) {
+                var checked = (i == {{ last_n_modulo|default(1) }}) ? 'checked' : '';
+                moduloButtons.append(`
+                    <div>
+                        <input type="radio" name="n_modulo" id="modulo${i}" value="${i}" ${checked} required>
+                        <label for="modulo${i}">${i}</label>
+                    </div>
+                `);
+            }
+        }
+
+        $('input[name="project"]').change(function() {
+            var project = $(this).val();
+            $.getJSON('/get_project_details/' + project, function(data) {
+                var numberOfModules = data.num_modulos || 3;
+                updateModuloButtons(numberOfModules);
+            });
+        });
+
+        var initialNumberOfModules = {{ num_modulos }};
+        updateModuloButtons(initialNumberOfModules);
+
+        var selectedProject = $('input[name="project"]:checked');
+        if (selectedProject.length > 0) {
+            selectedProject.change();
+        }
+    });
+</script>
+{% endblock %}

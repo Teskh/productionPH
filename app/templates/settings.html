@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Configuración - Aplicación de Seguimiento de Producción{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
+{% endblock %}
+
+{% block content %}
+<button class="back-arrow" onclick="window.history.back()">←</button>
+<h1 class="settings-title">Configuración</h1>
+<form action="{{ url_for('main.settings') }}" method="post">
+    <div class="mb-4">
+        <label for="line" class="form-label">Línea:</label>
+        <select name="line" id="line" class="form-select">
+            <option value="L1" {% if line == 'L1' %}selected{% endif %}>L1</option>
+            <option value="L2" {% if line == 'L2' %}selected{% endif %}>L2</option>
+            <option value="L3" {% if line == 'L3' %}selected{% endif %}>L3</option>
+        </select>
+    </div>
+
+    <div class="mb-4">
+        <label for="station" class="form-label">Estación:</label>
+        <select name="station" id="station" class="form-select">
+            {% for i in range(1, 7) %}
+                <option value="{{ i }}" {% if i == station %}selected{% endif %}>{{ i }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100">Guardar Configuración</button>
+</form>
+{% endblock %}

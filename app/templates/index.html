@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}Ingreso - Aplicación de Seguimiento de Producción{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('main.settings') }}" class="settings-link">⚙️</a>
+<img src="{{ url_for('static', filename='images/logo.png') }}" alt="Patagual Home Logo" class="logo">
+
+<div class="info-box">
+    <div>Línea: <span class="line-station">{{ line }}</span></div>
+    <div>Estación: <span class="line-station">{{ station }}</span></div>
+</div>
+
+<h1 class="index-title">Ingreso de Colaborador</h1>
+
+<div id="message-container"></div>
+
+<form id="workerNumberForm" class="mb-4">
+    <h3 class="form-label">Ingreso por Número</h3>
+    <div class="input-group">
+        <input type="number" id="workerNumber" name="worker_number" class="form-control" placeholder="Nº de colaborador" min="1">
+        <button type="button" id="workerNumberSubmit" class="btn btn-primary">Ingresar</button>
+    </div>
+</form>
+
+<form id="supervisorWorkerForm">
+    <h3 class="form-label">Ingreso por Supervisor y Nombre</h3>
+    <select id="supervisorSelect" name="supervisor" class="form-select mb-3">
+        <option value="">Seleccionar Supervisor</option>
+        {% for supervisor in supervisors %}
+        <option value="{{ supervisor }}">{{ supervisor }}</option>
+        {% endfor %}
+    </select>
+    <select id="workerSelect" name="worker_name" class="form-select" disabled>
+        <option value="">Seleccionar Colaborador</option>
+    </select>
+</form>
+
+{% if error %}
+<div class="error-message">
+    {{ error }}
+</div>
+{% endif %}
+
+<form id="loginForm" action="{{ url_for('main.submit') }}" method="post" style="display: none;">
+    <input type="hidden" name="identification_method" id="identificationMethod" value="">
+    <input type="hidden" name="worker_number" id="hiddenWorkerNumber" value="">
+    <input type="hidden" name="supervisor" id="hiddenSupervisor" value="">
+    <input type="hidden" name="worker_name" id="hiddenWorkerName" value="">
+    <input type="hidden" name="line" id="hiddenLine" value="{{ line }}">
+    <input type="hidden" name="station" id="hiddenStation" value="{{ station }}">
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        function submitWorkerNumber() {
+            var workerNumber = $('#workerNumber').val();
+            if (workerNumber && parseInt(workerNumber) > 0) {
+                $('#identificationMethod').val('worker_number');
+                $('#hiddenWorkerNumber').val(workerNumber);
+                $('#hiddenLine').val('{{ line }}');
+                $('#hiddenStation').val('{{ station }}');
+                $('#loginForm').submit();
+            } else {
+                showMessage('Número de trabajador inválido', 'error');
+            }
+        }
+
+        $('#supervisorSelect').change(function() {
+            var supervisor = $(this).val();
+            var workerSelect = $('#workerSelect');
+            workerSelect.empty().append('<option value="">Seleccionar Colaborador</option>');
+
+            if (supervisor) {
+                $.getJSON("{{ url_for('main.get_workers', supervisor='') }}" + supervisor, function(workers) {
+                    $.each(workers, function(index, worker) {
+                        workerSelect.append($('<option></option>').val(worker).text(worker));
+                    });
+                    workerSelect.prop('disabled', false);
+                });
+            } else {
+                workerSelect.prop('disabled', true);
+            }
+        });
+
+        $('#workerNumberSubmit').click(submitWorkerNumber);
+
+        $('#workerNumber').keypress(function(event) {
+            if (event.which == 13) {
+                event.preventDefault();
+                submitWorkerNumber();
+            }
+        });
+
+        $('#workerSelect').change(function() {
+            if ($(this).val()) {
+                $('#identificationMethod').val('supervisor');
+                $('#hiddenSupervisor').val($('#supervisorSelect').val());
+                $('#hiddenWorkerName').val($(this).val());
+                $('#hiddenLine').val('{{ line }}');
+                $('#hiddenStation').val('{{ station }}');
+                $('#loginForm').submit();
+            }
+        });
+
+        function showMessage(message, category = 'info') {
+            var alertClass = category === 'error' ? 'alert-danger' : 'alert-info';
+            $('#message-container').html('<div class="alert ' + alertClass + '">' + message + '</div>');
+        }
+
+        function handleFlashMessages() {
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        showMessage("{{ message }}", "{{ category }}");
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        }
+
+        handleFlashMessages();
+    });
+</script>
+{% endblock %}
