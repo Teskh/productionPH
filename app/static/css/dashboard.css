@@ -82,6 +82,7 @@
 .action-button {
     width: 100%;
     padding: 0.5rem 1rem;
+    height: 38px; /* Set a fixed height for all action buttons */
 }
 
 .casa-column {
