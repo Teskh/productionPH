@@ -42,8 +42,12 @@
                     </td>
                     <td>{{ active_task.activity }}</td>
                     <td>
-                        <div>{{ active_task.start_time.strftime('%Y-%m-%d') }}</div>
-                        <div>{{ active_task.start_time.strftime('%H:%M') }}</div>
+                        {% if active_task.start_time is string %}
+                            <div>{{ active_task.start_time }}</div>
+                        {% else %}
+                            <div>{{ active_task.start_time.strftime('%Y-%m-%d') }}</div>
+                            <div>{{ active_task.start_time.strftime('%H:%M') }}</div>
+                        {% endif %}
                     </td>
                     <td>
                         <div class="ubicacion-info">
@@ -92,8 +96,12 @@
                         </td>
                         <td>{{ task.activity }}</td>
                         <td>
-                            <div>{{ task.start_time.strftime('%Y-%m-%d') }}</div>
-                            <div>{{ task.start_time.strftime('%H:%M') }}</div>
+                            {% if task.start_time is string %}
+                                <div>{{ task.start_time }}</div>
+                            {% else %}
+                                <div>{{ task.start_time.strftime('%Y-%m-%d') }}</div>
+                                <div>{{ task.start_time.strftime('%H:%M') }}</div>
+                            {% endif %}
                         </td>
                         <td>
                             <div class="ubicacion-info">
