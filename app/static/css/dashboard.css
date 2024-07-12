@@ -92,4 +92,9 @@
     width: 20%; /* Adjust width as needed */
 }
 
+.casa-info .details {
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
 /* Add more styles as needed */

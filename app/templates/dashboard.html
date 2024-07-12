@@ -34,7 +34,10 @@
                     <td class="casa-column">
                         <div class="casa-info">
                             <span class="project">{{ active_task.project }}</span>
-                            <span class="details">Casa #{{ active_task.house_number }} | Módulo {{ active_task.n_modulo }}</span>
+                            <span class="details">
+                                <div>Casa #{{ active_task.house_number }}</div>
+                                <div>Módulo {{ active_task.n_modulo }}</div>
+                            </span>
                         </div>
                     </td>
                     <td>{{ active_task.activity }}</td>
@@ -48,7 +51,7 @@
                     <td>
                         <div class="action-buttons">
                             <button class="btn btn-warning btn-sm action-button text-white" onclick="showPauseOptions('{{ active_task.task_id }}')">Pausar</button>
-                            <button class="btn btn-danger btn-sm action-button" onclick="confirmFinishTask('{{ active_task.task_id }}')">Finalizar</button>
+                            <button class="btn btn-info btn-sm action-button" onclick="finishTask('{{ active_task.task_id }}')">Finalizar</button>
                         </div>
                     </td>
                 </tr>
@@ -78,7 +81,10 @@
                         <td class="casa-column">
                             <div class="casa-info">
                                 <span class="project">{{ task.project }}</span>
-                                <span class="details">Casa #{{ task.house_number }} | Módulo {{ task.n_modulo }}</span>
+                                <span class="details">
+                                    <div>Casa #{{ task.house_number }}</div>
+                                    <div>Módulo {{ task.n_modulo }}</div>
+                                </span>
                             </div>
                         </td>
                         <td>{{ task.activity }}</td>
@@ -92,7 +98,7 @@
                         <td>
                             <div class="action-buttons">
                                 <button class="btn btn-success btn-sm action-button" onclick="resumeTask('{{ task.task_id }}')">Reanudar</button>
-                                <button class="btn btn-danger btn-sm action-button" onclick="confirmFinishTask('{{ task.task_id }}')">Finalizar</button>
+                                <button class="btn btn-info btn-sm action-button" onclick="finishTask('{{ task.task_id }}')">Finalizar</button>
                             </div>
                         </td>
                     </tr>
@@ -194,19 +200,17 @@
         {% endwith %}
     });
 
-    function confirmFinishTask(taskId) {
-        if (confirm('¿Estás seguro de que quieres finalizar esta tarea?')) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = "{{ url_for('main.finish_task') }}";
-            const input = document.createElement('input');
-            input.type = 'hidden';
-            input.name = 'task_id';
-            input.value = taskId;
-            form.appendChild(input);
-            document.body.appendChild(form);
-            form.submit();
-        }
+    function finishTask(taskId) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = "{{ url_for('main.finish_task') }}";
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'task_id';
+        input.value = taskId;
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
     }
 
     function resumeTask(taskId) {
