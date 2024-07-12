@@ -41,7 +41,10 @@
                         </div>
                     </td>
                     <td>{{ active_task.activity }}</td>
-                    <td>{{ active_task.start_time }}</td>
+                    <td>
+                        <div>{{ active_task.start_time.strftime('%Y-%m-%d') }}</div>
+                        <div>{{ active_task.start_time.strftime('%H:%M') }}</div>
+                    </td>
                     <td>
                         <div class="ubicacion-info">
                             <div class="estacion">Estación {{ active_task.station }}</div>
@@ -50,7 +53,7 @@
                     </td>
                     <td>
                         <div class="action-buttons">
-                            <button class="btn btn-warning btn-sm action-button text-white" onclick="showPauseOptions('{{ active_task.task_id }}')">Pausar</button>
+                            <button class="btn btn-warning btn-sm action-button text-white rounded-3" onclick="showPauseOptions('{{ active_task.task_id }}')">Pausar</button>
                             <button class="btn btn-primary btn-sm action-button text-white" onclick="finishTask('{{ active_task.task_id }}')">Finalizar</button>
                         </div>
                     </td>
@@ -88,7 +91,10 @@
                             </div>
                         </td>
                         <td>{{ task.activity }}</td>
-                        <td>{{ task.start_time }}</td>
+                        <td>
+                            <div>{{ task.start_time.strftime('%Y-%m-%d') }}</div>
+                            <div>{{ task.start_time.strftime('%H:%M') }}</div>
+                        </td>
                         <td>
                             <div class="ubicacion-info">
                                 <div class="estacion">Estación {{ task.station }}</div>
@@ -97,7 +103,7 @@
                         </td>
                         <td>
                             <div class="action-buttons">
-                                <button class="btn btn-success btn-sm action-button" onclick="resumeTask('{{ task.task_id }}')">Reanudar</button>
+                                <button class="btn btn-success btn-sm action-button rounded-3" onclick="resumeTask('{{ task.task_id }}')">Reanudar</button>
                                 <button class="btn btn-primary btn-sm action-button text-white" onclick="finishTask('{{ task.task_id }}')">Finalizar</button>
                             </div>
                         </td>
