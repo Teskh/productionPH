@@ -34,11 +34,9 @@ function toggleFullScreen() {
     }
 }
 
-// Check full-screen state on page load
+// Check full-screen state and enter fullscreen on page load
 document.addEventListener('DOMContentLoaded', function() {
-    if (localStorage.getItem('fullscreen') === 'true') {
-        enterFullScreen();
-    }
+    enterFullScreen();
     
     // Add full-screen toggle button
     const body = document.body;
@@ -59,24 +57,16 @@ document.addEventListener('DOMContentLoaded', function() {
     body.appendChild(fullscreenBtn);
 });
 
-// Listen for changes in full-screen state
+// Listen for changes in full-screen state and re-enter fullscreen if exited
 document.addEventListener('fullscreenchange', function() {
-    if (document.fullscreenElement) {
-        localStorage.setItem('fullscreen', 'true');
-    } else {
-        localStorage.setItem('fullscreen', 'false');
+    if (!document.fullscreenElement) {
+        setTimeout(enterFullScreen, 100);
     }
 });
 
-// 2. Update app.py to serve the new JavaScript file
-# Add this near the top of app.py, after creating the Flask app
-app.static_folder = 'static'
-
-// 3. Modify existing HTML files (index.html, dashboard.html, start_new_task.html, settings.html)
-// Add this line just before the closing </body> tag in each file:
-<script src="{{ url_for('static', filename='js/fullscreen.js') }}"></script>
-
-// 4. Update the <head> section in each HTML file to include these meta tags:
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes"></meta>
+// Re-enter fullscreen when the window gains focus
+window.addEventListener('focus', function() {
+    if (!document.fullscreenElement) {
+        enterFullScreen();
+    }
+});
