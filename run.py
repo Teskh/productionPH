@@ -6,4 +6,4 @@ app = create_app(config_class=Config)
 
 if __name__ == '__main__':
     init_excel_file()
-    app.run(debug=app.config['DEBUG'])
+    app.run(host='0.0.0.0', port=5000, debug=app.config['DEBUG'])
