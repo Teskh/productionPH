@@ -44,6 +44,22 @@ class Task:
             return active_tasks
 
     @staticmethod
+    def get_all_active_tasks():
+        lock = FileLock(EXCEL_LOCK_FILE)
+        with lock:
+            wb = openpyxl.load_workbook(EXCEL_FILE)
+            ws = wb.active
+            active_tasks = []
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                if len(row) > 10 and row[10] == 'en proceso':
+                    task = {
+                        'task_id': row[0],
+                        'worker_number': row[2],
+                    }
+                    active_tasks.append(task)
+            return active_tasks
+
+    @staticmethod
     def get_active_task(worker_number):
         tasks = Task.get_active_tasks(worker_number)
         return next((task for task in tasks if task['status'] == 'en proceso'), None)
