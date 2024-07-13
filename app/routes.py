@@ -150,10 +150,15 @@ def start_new_task():
     else:
         num_modulos = max(projects[p].get('num_modulos', 3) for p in projects)
     
+    all_activities = [activity for specialty_activities in activities.values() for activity in specialty_activities]
+    user_activities = activities.get(user['specialty'], [])
+    other_activities = list(set(all_activities) - set(user_activities))
+    
     return render_template('start_new_task.html', 
                            user=user, 
                            projects=projects, 
-                           activities=activities.get(user['specialty'], []),
+                           user_activities=user_activities,
+                           other_activities=other_activities,
                            line=session.get('line', 'L1'),
                            station=session.get('station', 1),
                            last_project=last_project,

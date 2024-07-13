@@ -10,12 +10,23 @@
     padding: 0;
 }
 
+.settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
 .settings-title {
     color: #2c3e50;
-    text-align: center;
     font-weight: 700;
     font-size: 2rem;
-    margin-bottom: 1.5rem;
+    margin-right: 1rem;
+}
+
+.settings-icon {
+    width: 40px;
+    height: 40px;
 }
 
 .form-label {

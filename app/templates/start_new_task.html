@@ -41,13 +41,13 @@
 
     <div class="mb-4">
         <label for="activity" class="form-label">Actividad:</label>
-        <div class="form-check form-switch mb-2">
-            <input class="form-check-input" type="checkbox" id="showOtherActivities">
-            <label class="form-check-label" for="showOtherActivities">Mostrar actividades fuera de mi especialidad</label>
-        </div>
         <select name="activity" id="activity" class="form-select" required>
             <option value="">Seleccionar actividad</option>
         </select>
+        <div class="form-check form-switch mb-2 mt-3">
+            <input class="form-check-input" type="checkbox" id="showOtherActivities" style="transform: scale(1.5);">
+            <label class="form-check-label" for="showOtherActivities" style="font-size: 1.2em; margin-left: 10px;">Mostrar actividades fuera de mi especialidad</label>
+        </div>
     </div>
 
     <button type="submit" class="btn btn-primary w-100">Iniciar Tarea</button>
