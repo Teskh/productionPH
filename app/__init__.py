@@ -5,7 +5,7 @@ from config import Config
 
 def create_app(config_class=Config):
     scheduler = BackgroundScheduler()
-    scheduler.add_job(pause_active_tasks, 'cron', hour=15, minute=25)
+    scheduler.add_job(pause_active_tasks, 'cron', hour=17, minute=40)
     scheduler.start()
     app = Flask(__name__, static_folder='static', template_folder='templates')
     app.config.from_object(config_class)
