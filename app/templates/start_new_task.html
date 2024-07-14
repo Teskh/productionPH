@@ -135,56 +135,63 @@
 
 {% block extra_js %}
 <script>
-    $(document).ready(function() {
+    document.addEventListener('DOMContentLoaded', function() {
         function updateModuloButtons(numberOfModules) {
-            var moduloButtons = $('#moduloButtons');
-            moduloButtons.empty();
+            var moduloButtons = document.getElementById('moduloButtons');
+            moduloButtons.innerHTML = '';
             for (var i = 1; i <= numberOfModules; i++) {
                 var checked = (i == {{ last_n_modulo|default(1) }}) ? 'checked' : '';
-                moduloButtons.append(`
+                moduloButtons.innerHTML += `
                     <div>
                         <input type="radio" name="n_modulo" id="modulo${i}" value="${i}" ${checked} required>
                         <label for="modulo${i}">${i}</label>
                     </div>
-                `);
+                `;
             }
         }
 
-        $('input[name="project"]').change(function() {
-            var project = $(this).val();
-            $.getJSON('/get_project_details/' + project, function(data) {
-                var numberOfModules = data.num_modulos || 3;
-                updateModuloButtons(numberOfModules);
+        document.querySelectorAll('input[name="project"]').forEach(function(radio) {
+            radio.addEventListener('change', function() {
+                var project = this.value;
+                fetch('/get_project_details/' + project)
+                    .then(response => response.json())
+                    .then(data => {
+                        var numberOfModules = data.num_modulos || 3;
+                        updateModuloButtons(numberOfModules);
+                    });
             });
         });
 
         var initialNumberOfModules = {{ num_modulos }};
         updateModuloButtons(initialNumberOfModules);
 
-        var selectedProject = $('input[name="project"]:checked');
-        if (selectedProject.length > 0) {
-            selectedProject.change();
+        var selectedProject = document.querySelector('input[name="project"]:checked');
+        if (selectedProject) {
+            selectedProject.dispatchEvent(new Event('change'));
         }
 
         // Add form submission handling
-        $('form').submit(function(event) {
+        document.getElementById('newTaskForm').addEventListener('submit', function(event) {
             event.preventDefault();
-            $.ajax({
-                url: $(this).attr('action'),
-                type: 'POST',
-                data: $(this).serialize(),
-                dataType: 'json',
-                success: function(response) {
-                    if (response.success) {
-                        alert('Nueva tarea iniciada con éxito');
-                        window.location.href = '{{ url_for("main.dashboard") }}';
-                    } else {
-                        alert(response.message || 'Hubo un problema al iniciar la tarea. Por favor, inténtelo de nuevo.');
-                    }
-                },
-                error: function() {
-                    alert('Hubo un error al enviar el formulario. Por favor, inténtelo de nuevo.');
+            fetch(this.action, {
+                method: 'POST',
+                body: new FormData(this),
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Nueva tarea iniciada con éxito');
+                    window.location.href = '{{ url_for("main.dashboard") }}';
+                } else {
+                    alert(data.message || 'Hubo un problema al iniciar la tarea. Por favor, inténtelo de nuevo.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Hubo un error al enviar el formulario. Por favor, inténtelo de nuevo.');
             });
         });
     });
