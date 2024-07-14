@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Nueva Tarea</title>
+</head>
+<body>
+    <h1>Iniciar Nueva Tarea</h1>
+    
+    <select id="actividad" name="actividad">
+        <option value="">Seleccione una actividad</option>
+        {% for actividad in actividades %}
+            <option value="{{ actividad.id }}">{{ actividad.nombre }}</option>
+        {% endfor %}
+    </select>
+    <button id="start-task-button">Iniciar tarea</button>
+
+    <script>
+        function start_new_task() {
+            var actividadSelect = document.getElementById("actividad");
+            var selectedActividad = actividadSelect.value;
+            
+            if (selectedActividad) {
+                // Redirect to the task page with the selected actividad
+                window.location.href = "/task/" + selectedActividad;
+            } else {
+                alert("Por favor seleccione una actividad antes de iniciar la tarea.");
+            }
+        }
+
+        // Add event listener to the button
+        document.addEventListener('DOMContentLoaded', function() {
+            var startButton = document.getElementById('start-task-button');
+            if (startButton) {
+                startButton.addEventListener('click', start_new_task);
+            }
+        });
+    </script>
+</body>
+</html>
