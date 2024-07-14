@@ -133,17 +133,10 @@
             selectedProject.dispatchEvent(new Event('change'));
         }
 
-        document.querySelectorAll('.frequent-task-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                activitySelect.value = this.dataset.activity;
-            });
-        });
-
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
+        function startTask(formData) {
             fetch('{{ url_for("main.start_new_task") }}', {
                 method: 'POST',
-                body: new FormData(this),
+                body: formData,
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest'
                 }
@@ -169,6 +162,19 @@
                 document.getElementById('errorMessage').style.display = 'block';
                 document.getElementById('successMessage').style.display = 'none';
             });
+        }
+
+        document.querySelectorAll('.frequent-task-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const formData = new FormData(form);
+                formData.set('activity', this.dataset.activity);
+                startTask(formData);
+            });
+        });
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            startTask(new FormData(this));
         });
     });
 </script>
