@@ -110,9 +110,21 @@
                 
                 // Update other form fields
                 const mainForm = document.querySelector('form[action="{{ url_for('main.start_new_task') }}"]');
-                mainForm.querySelector('input[name="project"]').value = this.querySelector('input[name="project"]').value;
+                const projectInputs = mainForm.querySelectorAll('input[name="project"]');
+                const projectValue = this.querySelector('input[name="project"]').value;
+                projectInputs.forEach(input => {
+                    if (input.value === projectValue) {
+                        input.checked = true;
+                    }
+                });
                 mainForm.querySelector('input[name="house_number"]').value = this.querySelector('input[name="house_number"]').value;
-                mainForm.querySelector('input[name="n_modulo"]').value = this.querySelector('input[name="n_modulo"]').value;
+                const moduleInputs = mainForm.querySelectorAll('input[name="n_modulo"]');
+                const moduleValue = this.querySelector('input[name="n_modulo"]').value;
+                moduleInputs.forEach(input => {
+                    if (input.value === moduleValue) {
+                        input.checked = true;
+                    }
+                });
                 
                 // Submit the main form
                 mainForm.submit();
