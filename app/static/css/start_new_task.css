@@ -72,13 +72,25 @@
 
 .frequent-tasks {
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
     margin-bottom: 1rem;
 }
 
-.frequent-task {
+.frequent-task-btn {
     flex: 1;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    background-color: #ecf0f1;
+    color: #2c3e50;
+    padding: 10px 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.frequent-tasks input[type="radio"]:checked + .frequent-task-btn {
+    background-color: #3498db;
+    color: white;
 }
