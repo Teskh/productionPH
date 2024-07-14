@@ -147,9 +147,7 @@
                     document.getElementById('successMessage').style.display = 'block';
                     document.getElementById('errorMessage').style.display = 'none';
                     form.reset();
-                    setTimeout(() => {
-                        window.location.href = '{{ url_for("main.dashboard") }}';
-                    }, 2000);
+                    window.location.href = '{{ url_for("main.dashboard") }}';
                 } else {
                     document.getElementById('errorMessage').textContent = data.message;
                     document.getElementById('errorMessage').style.display = 'block';
@@ -169,6 +167,15 @@
                 const formData = new FormData(form);
                 formData.set('activity', this.dataset.activity);
                 startTask(formData);
+                
+                // Disable all buttons immediately
+                document.querySelectorAll('.frequent-task-btn').forEach(btn => {
+                    btn.disabled = true;
+                });
+                
+                // Show immediate feedback
+                this.classList.add('btn-success');
+                this.textContent = 'Iniciando...';
             });
         });
 
