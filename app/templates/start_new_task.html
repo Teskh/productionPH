@@ -45,17 +45,6 @@
         </div>
     </div>
 
-    <div class="mb-4">
-        <label for="activity" class="form-label">Actividad:</label>
-        <select name="activity" id="activity" class="form-select" required>
-            <option value="">Seleccionar actividad</option>
-        </select>
-        <div class="form-check form-switch mb-2 mt-3">
-            <input class="form-check-input" type="checkbox" id="showOtherActivities" style="transform: scale(1.5);">
-            <label class="form-check-label" for="showOtherActivities" style="font-size: 1.2em; margin-left: 10px;">Mostrar actividades fuera de mi especialidad</label>
-        </div>
-    </div>
-
     {% if frequent_tasks %}
     <div class="mb-4">
         <label class="form-label">Tareas frecuentes:</label>
@@ -66,6 +55,17 @@
         </div>
     </div>
     {% endif %}
+
+    <div class="mb-4">
+        <label for="activity" class="form-label">Actividad:</label>
+        <select name="activity" id="activity" class="form-select" required>
+            <option value="">Seleccionar actividad</option>
+        </select>
+        <div class="form-check form-switch mb-2 mt-3">
+            <input class="form-check-input" type="checkbox" id="showOtherActivities" style="transform: scale(1.5);">
+            <label class="form-check-label" for="showOtherActivities" style="font-size: 1.2em; margin-left: 10px;">Mostrar actividades fuera de mi especialidad</label>
+        </div>
+    </div>
 
     <button type="submit" class="btn btn-primary w-100">Iniciar Tarea</button>
 </form>
