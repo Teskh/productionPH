@@ -132,6 +132,22 @@
                 mainForm.submit();
             });
         });
+
+        // Handle main form submission
+        const mainForm = document.querySelector('form[action="{{ url_for('main.start_new_task') }}"]');
+        mainForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            // Validate that an activity is selected
+            const activitySelect = this.querySelector('select[name="activity"]');
+            if (!activitySelect.value) {
+                alert('Por favor, seleccione una actividad.');
+                return;
+            }
+            
+            // If all validations pass, submit the form
+            this.submit();
+        });
     });
 </script>
 {% endblock %}
