@@ -130,6 +130,12 @@
         if (selectedProject.length > 0) {
             selectedProject.change();
         }
+
+        // Handle frequent task selection
+        $('.frequent-tasks input[type="radio"]').change(function() {
+            var task = $(this).val();
+            $('#activity').val(task);
+        });
     });
 </script>
 {% endblock %}
