@@ -55,7 +55,7 @@
         <label class="form-label">Tareas frecuentes:</label>
         <div class="frequent-tasks">
             {% for task in frequent_tasks %}
-            <form action="{{ url_for('main.start_new_task') }}" method="post" class="d-inline">
+            <form action="{{ url_for('main.start_new_task') }}" method="post" class="d-inline frequent-task-form">
                 <input type="hidden" name="project" value="{{ last_project }}">
                 <input type="hidden" name="house_number" value="{{ last_house_number }}">
                 <input type="hidden" name="n_modulo" value="{{ last_n_modulo }}">
@@ -74,7 +74,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         const activitySelect = document.getElementById('activity');
         const showOtherActivitiesCheckbox = document.getElementById('showOtherActivities');
-        const frequentTaskForms = document.querySelectorAll('.frequent-tasks form');
+        const frequentTaskForms = document.querySelectorAll('.frequent-task-form');
         
         const userActivities = {{ user_activities|tojson }};
         const otherActivities = {{ other_activities|tojson }};
@@ -99,7 +99,9 @@
         // Prevent frequent task forms from interfering with the main form
         frequentTaskForms.forEach(form => {
             form.addEventListener('submit', function(event) {
+                event.preventDefault();
                 event.stopPropagation();
+                this.submit();
             });
         });
     });
