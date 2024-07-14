@@ -69,3 +69,16 @@
 .btn-primary:hover {
     background-color: #d35400;
 }
+
+.frequent-tasks {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1rem;
+}
+
+.frequent-task {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
