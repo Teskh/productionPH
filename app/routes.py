@@ -3,6 +3,7 @@ from app.models import Task
 from app.utils import format_timestamp, init_excel_file
 from data_manager import load_worker_data, load_project_data, load_activity_data
 import uuid
+from collections import Counter
 
 bp = Blueprint('main', __name__)
 
@@ -154,6 +155,11 @@ def start_new_task():
     user_activities = activities.get(user['specialty'], [])
     other_activities = list(set(all_activities) - set(user_activities))
     
+    # Get the most frequent tasks for the user
+    user_tasks = Task.get_user_tasks(user['number'])
+    task_counter = Counter(task['activity'] for task in user_tasks)
+    frequent_tasks = [task for task, count in task_counter.most_common(3) if count >= 3]
+    
     return render_template('start_new_task.html', 
                            user=user, 
                            projects=projects, 
@@ -164,7 +170,8 @@ def start_new_task():
                            last_project=last_project,
                            last_house_number=last_house_number,
                            last_n_modulo=last_n_modulo,
-                           num_modulos=num_modulos)
+                           num_modulos=num_modulos,
+                           frequent_tasks=frequent_tasks)
 
 @bp.route('/pause_task', methods=['POST'])
 def pause_task():
