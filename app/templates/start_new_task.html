@@ -53,12 +53,15 @@
     {% if frequent_tasks %}
     <div class="mb-4">
         <label class="form-label">Tareas frecuentes:</label>
-        <div class="radio-group frequent-tasks">
+        <div class="frequent-tasks">
             {% for task in frequent_tasks %}
-            <div>
-                <input type="radio" name="frequent_task" id="frequent_task{{ loop.index }}" value="{{ task }}">
-                <label for="frequent_task{{ loop.index }}" class="frequent-task-btn">{{ task }}</label>
-            </div>
+            <form action="{{ url_for('main.start_new_task') }}" method="post" class="d-inline">
+                <input type="hidden" name="project" value="{{ last_project }}">
+                <input type="hidden" name="house_number" value="{{ last_house_number }}">
+                <input type="hidden" name="n_modulo" value="{{ last_n_modulo }}">
+                <input type="hidden" name="activity" value="{{ task }}">
+                <button type="submit" class="btn btn-outline-primary frequent-task-btn">{{ task }}</button>
+            </form>
             {% endfor %}
         </div>
     </div>
@@ -127,12 +130,6 @@
         if (selectedProject.length > 0) {
             selectedProject.change();
         }
-
-        // Handle frequent task selection
-        $('.frequent-tasks input[type="radio"]').change(function() {
-            var task = $(this).val();
-            $('#activity').val(task);
-        });
     });
 </script>
 {% endblock %}
