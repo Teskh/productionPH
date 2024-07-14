@@ -145,6 +145,22 @@
                 return;
             }
             
+            // Validate that a project is selected
+            const projectInputs = this.querySelectorAll('input[name="project"]');
+            const selectedProject = Array.from(projectInputs).find(input => input.checked);
+            if (!selectedProject) {
+                alert('Por favor, seleccione un proyecto.');
+                return;
+            }
+            
+            // Validate that a module number is selected
+            const moduleInputs = this.querySelectorAll('input[name="n_modulo"]');
+            const selectedModule = Array.from(moduleInputs).find(input => input.checked);
+            if (!selectedModule) {
+                alert('Por favor, seleccione un número de módulo.');
+                return;
+            }
+            
             // If all validations pass, submit the form
             this.submit();
         });
