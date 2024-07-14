@@ -18,22 +18,31 @@
 
     <script>
         function start_new_task() {
+            console.log("start_new_task function called");
             var actividadSelect = document.getElementById("actividad");
             var selectedActividad = actividadSelect.value;
             
+            console.log("Selected actividad:", selectedActividad);
+            
             if (selectedActividad) {
+                console.log("Redirecting to:", "/task/" + selectedActividad);
                 // Redirect to the task page with the selected actividad
                 window.location.href = "/task/" + selectedActividad;
             } else {
+                console.log("No actividad selected");
                 alert("Por favor seleccione una actividad antes de iniciar la tarea.");
             }
         }
 
         // Add event listener to the button
         document.addEventListener('DOMContentLoaded', function() {
+            console.log("DOM content loaded");
             var startButton = document.getElementById('start-task-button');
             if (startButton) {
+                console.log("Start button found, adding event listener");
                 startButton.addEventListener('click', start_new_task);
+            } else {
+                console.log("Start button not found");
             }
         });
     </script>
