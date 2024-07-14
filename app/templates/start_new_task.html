@@ -74,6 +74,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         const activitySelect = document.getElementById('activity');
         const showOtherActivitiesCheckbox = document.getElementById('showOtherActivities');
+        const frequentTaskForms = document.querySelectorAll('.frequent-tasks form');
         
         const userActivities = {{ user_activities|tojson }};
         const otherActivities = {{ other_activities|tojson }};
@@ -93,6 +94,13 @@
 
         showOtherActivitiesCheckbox.addEventListener('change', function() {
             updateActivityOptions(this.checked);
+        });
+
+        // Prevent frequent task forms from interfering with the main form
+        frequentTaskForms.forEach(form => {
+            form.addEventListener('submit', function(event) {
+                event.stopPropagation();
+            });
         });
     });
 </script>
