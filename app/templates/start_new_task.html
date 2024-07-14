@@ -132,13 +132,6 @@
         $('.frequent-tasks input[type="radio"]').change(function() {
             var task = $(this).val();
             $('#activity').val(task);
-            // Uncheck other radio buttons
-            $('input[name="project"], input[name="n_modulo"]').prop('checked', false);
-        });
-
-        // Uncheck frequent task when project or n_modulo is selected
-        $('input[name="project"], input[name="n_modulo"]').change(function() {
-            $('.frequent-tasks input[type="radio"]').prop('checked', false);
         });
     });
 </script>
