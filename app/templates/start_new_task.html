@@ -52,10 +52,13 @@
 
     {% if frequent_tasks %}
     <div class="mb-4">
-        <h4>Tareas más frecuentes:</h4>
-        <div class="frequent-tasks">
+        <label class="form-label">Tareas frecuentes:</label>
+        <div class="radio-group frequent-tasks">
             {% for task in frequent_tasks %}
-            <button type="button" class="btn btn-outline-primary frequent-task" data-task="{{ task }}">{{ task }}</button>
+            <div>
+                <input type="radio" name="frequent_task" id="frequent_task{{ loop.index }}" value="{{ task }}">
+                <label for="frequent_task{{ loop.index }}" class="frequent-task-btn">{{ task }}</label>
+            </div>
             {% endfor %}
         </div>
     </div>
@@ -126,8 +129,8 @@
         }
 
         // Handle frequent task selection
-        $('.frequent-task').click(function() {
-            var task = $(this).data('task');
+        $('.frequent-tasks input[type="radio"]').change(function() {
+            var task = $(this).val();
             $('#activity').val(task);
         });
     });
