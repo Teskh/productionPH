@@ -50,6 +50,17 @@
         </div>
     </div>
 
+    {% if frequent_tasks %}
+    <div class="mb-4">
+        <h4>Tareas más frecuentes:</h4>
+        <div class="frequent-tasks">
+            {% for task in frequent_tasks %}
+            <button type="button" class="btn btn-outline-primary frequent-task" data-task="{{ task }}">{{ task }}</button>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
     <button type="submit" class="btn btn-primary w-100">Iniciar Tarea</button>
 </form>
 
@@ -113,6 +124,12 @@
         if (selectedProject.length > 0) {
             selectedProject.change();
         }
+
+        // Handle frequent task selection
+        $('.frequent-task').click(function() {
+            var task = $(this).data('task');
+            $('#activity').val(task);
+        });
     });
 </script>
 {% endblock %}
