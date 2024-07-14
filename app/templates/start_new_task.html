@@ -101,22 +101,26 @@
 
         // Simple form validation
         document.getElementById('newTaskForm').addEventListener('submit', function(event) {
+            event.preventDefault();
             if (!this.checkValidity()) {
-                event.preventDefault();
                 event.stopPropagation();
                 alert('Por favor, complete todos los campos requeridos.');
             } else {
-                // If form is valid, submit it and show success message
-                event.preventDefault();
+                // If form is valid, submit it
                 fetch(this.action, {
                     method: 'POST',
                     body: new FormData(this)
-                }).then(response => {
-                    if (response.ok) {
+                }).then(response => response.json())
+                .then(data => {
+                    if (data.success) {
                         document.getElementById('successMessage').style.display = 'block';
                         this.reset();
+                        // Redirect to dashboard after a short delay
+                        setTimeout(() => {
+                            window.location.href = '{{ url_for("main.dashboard") }}';
+                        }, 2000);
                     } else {
-                        alert('Hubo un problema al iniciar la tarea. Por favor, inténtelo de nuevo.');
+                        alert(data.message || 'Hubo un problema al iniciar la tarea. Por favor, inténtelo de nuevo.');
                     }
                 }).catch(error => {
                     console.error('Error:', error);
