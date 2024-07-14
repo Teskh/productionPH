@@ -75,6 +75,7 @@
         const activitySelect = document.getElementById('activity');
         const showOtherActivitiesCheckbox = document.getElementById('showOtherActivities');
         const frequentTaskForms = document.querySelectorAll('.frequent-task-form');
+        const mainForm = document.querySelector('form[action="{{ url_for('main.start_new_task') }}"]');
         
         const userActivities = {{ user_activities|tojson }};
         const otherActivities = {{ other_activities|tojson }};
@@ -111,7 +112,6 @@
                 activitySelect.value = activity;
                 
                 // Update other form fields
-                const mainForm = document.querySelector('form[action="{{ url_for('main.start_new_task') }}"]');
                 const projectInputs = mainForm.querySelectorAll('input[name="project"]');
                 const projectValue = form.querySelector('input[name="project"]').value;
                 projectInputs.forEach(input => {
@@ -134,13 +134,11 @@
         });
 
         // Handle main form submission
-        const mainForm = document.querySelector('form[action="{{ url_for('main.start_new_task') }}"]');
         mainForm.addEventListener('submit', function(event) {
-            event.preventDefault();
-            
             // Validate that an activity is selected
             const activitySelect = this.querySelector('select[name="activity"]');
             if (!activitySelect.value) {
+                event.preventDefault();
                 alert('Por favor, seleccione una actividad.');
                 return;
             }
@@ -149,6 +147,7 @@
             const projectInputs = this.querySelectorAll('input[name="project"]');
             const selectedProject = Array.from(projectInputs).find(input => input.checked);
             if (!selectedProject) {
+                event.preventDefault();
                 alert('Por favor, seleccione un proyecto.');
                 return;
             }
@@ -157,12 +156,12 @@
             const moduleInputs = this.querySelectorAll('input[name="n_modulo"]');
             const selectedModule = Array.from(moduleInputs).find(input => input.checked);
             if (!selectedModule) {
+                event.preventDefault();
                 alert('Por favor, seleccione un número de módulo.');
                 return;
             }
             
-            // If all validations pass, submit the form
-            this.submit();
+            // If all validations pass, the form will submit naturally
         });
     });
 </script>
