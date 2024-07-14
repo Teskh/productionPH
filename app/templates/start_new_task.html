@@ -96,14 +96,16 @@
             updateActivityOptions(this.checked);
         });
 
-        // Handle frequent task form submissions
-        frequentTaskForms.forEach(form => {
-            form.addEventListener('submit', function(event) {
+        // Handle frequent task button clicks
+        document.querySelectorAll('.frequent-task-btn').forEach(button => {
+            button.addEventListener('click', function(event) {
                 event.preventDefault();
                 event.stopPropagation();
                 
+                const form = this.closest('form');
+                
                 // Get the activity value from the hidden input
-                const activity = this.querySelector('input[name="activity"]').value;
+                const activity = form.querySelector('input[name="activity"]').value;
                 
                 // Set the activity in the main form's select element
                 activitySelect.value = activity;
@@ -111,15 +113,15 @@
                 // Update other form fields
                 const mainForm = document.querySelector('form[action="{{ url_for('main.start_new_task') }}"]');
                 const projectInputs = mainForm.querySelectorAll('input[name="project"]');
-                const projectValue = this.querySelector('input[name="project"]').value;
+                const projectValue = form.querySelector('input[name="project"]').value;
                 projectInputs.forEach(input => {
                     if (input.value === projectValue) {
                         input.checked = true;
                     }
                 });
-                mainForm.querySelector('input[name="house_number"]').value = this.querySelector('input[name="house_number"]').value;
+                mainForm.querySelector('input[name="house_number"]').value = form.querySelector('input[name="house_number"]').value;
                 const moduleInputs = mainForm.querySelectorAll('input[name="n_modulo"]');
-                const moduleValue = this.querySelector('input[name="n_modulo"]').value;
+                const moduleValue = form.querySelector('input[name="n_modulo"]').value;
                 moduleInputs.forEach(input => {
                     if (input.value === moduleValue) {
                         input.checked = true;
