@@ -74,8 +74,6 @@
     document.addEventListener('DOMContentLoaded', function() {
         const activitySelect = document.getElementById('activity');
         const showOtherActivitiesCheckbox = document.getElementById('showOtherActivities');
-        const frequentTaskForms = document.querySelectorAll('.frequent-task-form');
-        const mainForm = document.getElementById('newTaskForm');
         
         const userActivities = {{ user_activities|tojson }};
         const otherActivities = {{ other_activities|tojson }};
@@ -97,72 +95,15 @@
             updateActivityOptions(this.checked);
         });
 
-        // Handle frequent task button clicks
-        document.querySelectorAll('.frequent-task-btn').forEach(button => {
-            button.addEventListener('click', function(event) {
+        // Simple form validation
+        document.getElementById('newTaskForm').addEventListener('submit', function(event) {
+            if (!this.checkValidity()) {
                 event.preventDefault();
                 event.stopPropagation();
-                
-                const form = this.closest('form');
-                
-                // Get the activity value from the hidden input
-                const activity = form.querySelector('input[name="activity"]').value;
-                
-                // Set the activity in the main form's select element
-                activitySelect.value = activity;
-                
-                // Update other form fields
-                const projectInputs = mainForm.querySelectorAll('input[name="project"]');
-                const projectValue = form.querySelector('input[name="project"]').value;
-                projectInputs.forEach(input => {
-                    if (input.value === projectValue) {
-                        input.checked = true;
-                    }
-                });
-                mainForm.querySelector('input[name="house_number"]').value = form.querySelector('input[name="house_number"]').value;
-                const moduleInputs = mainForm.querySelectorAll('input[name="n_modulo"]');
-                const moduleValue = form.querySelector('input[name="n_modulo"]').value;
-                moduleInputs.forEach(input => {
-                    if (input.value === moduleValue) {
-                        input.checked = true;
-                    }
-                });
-                
-                // Submit the main form
-                mainForm.submit();
-            });
-        });
-
-        // Handle main form submission
-        mainForm.addEventListener('submit', function(event) {
-            event.preventDefault(); // Prevent the default form submission
-            
-            // Validate that an activity is selected
-            const activitySelect = this.querySelector('select[name="activity"]');
-            if (!activitySelect.value) {
-                alert('Por favor, seleccione una actividad.');
-                return;
+                alert('Por favor, complete todos los campos requeridos.');
             }
-            
-            // Validate that a project is selected
-            const projectInputs = this.querySelectorAll('input[name="project"]');
-            const selectedProject = Array.from(projectInputs).find(input => input.checked);
-            if (!selectedProject) {
-                alert('Por favor, seleccione un proyecto.');
-                return;
-            }
-            
-            // Validate that a module number is selected
-            const moduleInputs = this.querySelectorAll('input[name="n_modulo"]');
-            const selectedModule = Array.from(moduleInputs).find(input => input.checked);
-            if (!selectedModule) {
-                alert('Por favor, seleccione un número de módulo.');
-                return;
-            }
-            
-            // If all validations pass, submit the form
-            this.submit();
-        });
+            this.classList.add('was-validated');
+        }, false);
     });
 </script>
 {% endblock %}

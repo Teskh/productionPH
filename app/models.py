@@ -71,24 +71,25 @@ class Task:
             wb = openpyxl.load_workbook(EXCEL_FILE)
             ws = wb.active
             new_row = [
-                task_data['task_id'],
+                task_data.get('task_id', ''),
                 format_timestamp(),
-                task_data['worker_number'],
-                task_data['supervisor'],
-                task_data['user'],
-                task_data['specialty'],
-                task_data['project'],
-                task_data['house_number'],
-                task_data['n_modulo'],
-                task_data['activity'],
-                task_data['status'],
-                task_data['station'],
-                task_data['line'],
+                task_data.get('worker_number', ''),
+                task_data.get('supervisor', ''),
+                task_data.get('user', ''),
+                task_data.get('specialty', ''),
+                task_data.get('project', ''),
+                task_data.get('house_number', ''),
+                task_data.get('n_modulo', ''),
+                task_data.get('activity', ''),
+                'en proceso',  # Default status when starting a new task
+                task_data.get('station', ''),
+                task_data.get('line', ''),
                 '', '', '', '', '', '',  # Pause and Resume columns
                 ''  # End Timestamp
             ]
             ws.append(new_row)
             wb.save(EXCEL_FILE)
+        return True  # Indicate successful task addition
 
     @staticmethod
     def update_task(task_id, new_status, timestamp=None, pause_reason=None):
