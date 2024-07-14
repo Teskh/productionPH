@@ -165,6 +165,28 @@
         if (selectedProject.length > 0) {
             selectedProject.change();
         }
+
+        // Add form submission handling
+        $('form').submit(function(event) {
+            event.preventDefault();
+            $.ajax({
+                url: $(this).attr('action'),
+                type: 'POST',
+                data: $(this).serialize(),
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        alert('Nueva tarea iniciada con éxito');
+                        window.location.href = '{{ url_for("main.dashboard") }}';
+                    } else {
+                        alert(response.message || 'Hubo un problema al iniciar la tarea. Por favor, inténtelo de nuevo.');
+                    }
+                },
+                error: function() {
+                    alert('Hubo un error al enviar el formulario. Por favor, inténtelo de nuevo.');
+                }
+            });
+        });
     });
 </script>
 {% endblock %}
