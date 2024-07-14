@@ -108,8 +108,14 @@
                 // Set the activity in the main form's select element
                 activitySelect.value = activity;
                 
+                // Update other form fields
+                const mainForm = document.querySelector('form[action="{{ url_for('main.start_new_task') }}"]');
+                mainForm.querySelector('input[name="project"]').value = this.querySelector('input[name="project"]').value;
+                mainForm.querySelector('input[name="house_number"]').value = this.querySelector('input[name="house_number"]').value;
+                mainForm.querySelector('input[name="n_modulo"]').value = this.querySelector('input[name="n_modulo"]').value;
+                
                 // Submit the main form
-                document.querySelector('form[action="{{ url_for('main.start_new_task') }}"]').submit();
+                mainForm.submit();
             });
         });
     });
