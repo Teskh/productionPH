@@ -70,17 +70,6 @@
         </div>
     </div>
 
-    {% if frequent_tasks %}
-    <div class="mb-4">
-        <label class="form-label">Tareas frecuentes:</label>
-        <div class="frequent-tasks">
-            {% for task in frequent_tasks %}
-            <button type="submit" class="btn btn-outline-primary frequent-task-btn" name="activity" value="{{ task }}">{{ task }}</button>
-            {% endfor %}
-        </div>
-    </div>
-    {% endif %}
-
     <button type="submit" class="btn btn-primary w-100">Iniciar Tarea</button>
 </form>
 {% endblock %}
