@@ -88,4 +88,45 @@
 {% block extra_js %}
 <script>
     $(document).ready(function() {
-        function updateModuloButtons(numberOfMo
+        function updateModuloButtons(numberOfModulos) {
+            var moduloButtons = $('#moduloButtons');
+            moduloButtons.empty();
+            for (var i = 1; i <= numberOfModulos; i++) {
+                var checked = (i === 1) ? 'checked' : '';
+                moduloButtons.append(
+                    '<div>' +
+                    '<input type="radio" name="n_modulo" id="modulo' + i + '" ' +
+                    'value="' + i + '" ' + checked + ' required>' +
+                    '<label for="modulo' + i + '">' + i + '</label>' +
+                    '</div>'
+                );
+            }
+        }
+
+        $('input[name="project"]').change(function() {
+            var selectedProject = $(this).val();
+            $.getJSON('/get_project_details/' + selectedProject, function(data) {
+                updateModuloButtons(data.num_modulos);
+            });
+        });
+
+        $('#showOtherActivities').change(function() {
+            var activitySelect = $('#activity');
+            if (this.checked) {
+                $('option', activitySelect).show();
+            } else {
+                $('option:not(:first-child)', activitySelect).hide();
+                $('option[value^="' + '{{ user.specialty }}' + '"]', activitySelect).show();
+            }
+        });
+
+        // Trigger the change event on page load to set the initial state
+        $('#showOtherActivities').change();
+
+        // Set up click handlers for frequent task buttons
+        $('.frequent-task-btn').click(function() {
+            $('#activity').val($(this).data('activity'));
+        });
+    });
+</script>
+{% endblock %}
