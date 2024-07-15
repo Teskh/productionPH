@@ -146,10 +146,7 @@ def start_new_task():
     last_house_number = session.get('last_house_number', '')
     last_n_modulo = session.get('last_n_modulo', '')
     
-    if last_project:
-        num_modulos = projects.get(last_project, {}).get('num_modulos', 3)
-    else:
-        num_modulos = max(projects[p].get('num_modulos', 3) for p in projects)
+    projects_data = {project: projects[project] for project in projects}
     
     all_activities = [activity for specialty_activities in activities.values() for activity in specialty_activities]
     user_activities = activities.get(user['specialty'], [])
@@ -162,7 +159,7 @@ def start_new_task():
     
     return render_template('start_new_task.html', 
                            user=user, 
-                           projects=projects, 
+                           projects=projects_data, 
                            user_activities=user_activities,
                            other_activities=other_activities,
                            line=session.get('line', 'L1'),
@@ -170,7 +167,6 @@ def start_new_task():
                            last_project=last_project,
                            last_house_number=last_house_number,
                            last_n_modulo=last_n_modulo,
-                           num_modulos=num_modulos,
                            frequent_tasks=frequent_tasks)
 
 @bp.route('/pause_task', methods=['POST'])

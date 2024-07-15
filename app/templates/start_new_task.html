@@ -94,9 +94,8 @@
 
         $('input[name="project"]').change(function() {
             var selectedProject = $(this).val();
-            $.getJSON('/get_project_details/' + selectedProject, function(data) {
-                updateModuloButtons(data.num_modulos);
-            });
+            var projectData = {{ projects | tojson | safe }};
+            updateModuloButtons(projectData[selectedProject].num_modulos);
         });
 
         $('#showOtherActivities').change(function() {
@@ -132,6 +131,9 @@
                 $(this).addClass('was-validated');
             }
         });
+
+        // Trigger the project change event on page load to set the initial state
+        $('input[name="project"]:checked').change();
     });
 </script>
 {% endblock %}
