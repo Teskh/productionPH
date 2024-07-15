@@ -9,7 +9,7 @@
 {% block content %}
 <button class="back-arrow" onclick="window.history.back()">←</button>
 <h1 class="task-title">Iniciar Nueva Tarea</h1>
-<form id="newTaskForm">
+<form action="{{ url_for('main.start_new_task') }}" method="post">
     <div class="mb-4">
         <label class="form-label">Proyecto:</label>
         <div class="radio-group">
@@ -60,6 +60,9 @@
         <label for="activity" class="form-label">Actividad:</label>
         <select name="activity" id="activity" class="form-select" required>
             <option value="">Seleccionar actividad</option>
+            {% for activity in user_activities %}
+                <option value="{{ activity }}">{{ activity }}</option>
+            {% endfor %}
         </select>
         <div class="form-check form-switch mb-2 mt-3">
             <input class="form-check-input" type="checkbox" id="showOtherActivities" style="transform: scale(1.5);">
@@ -67,128 +70,22 @@
         </div>
     </div>
 
+    {% if frequent_tasks %}
+    <div class="mb-4">
+        <label class="form-label">Tareas frecuentes:</label>
+        <div class="frequent-tasks">
+            {% for task in frequent_tasks %}
+            <button type="submit" class="btn btn-outline-primary frequent-task-btn" name="activity" value="{{ task }}">{{ task }}</button>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
     <button type="submit" class="btn btn-primary w-100">Iniciar Tarea</button>
 </form>
-
-<div id="successMessage" class="alert alert-success mt-3" style="display: none;">
-    Tarea iniciada con éxito!
-</div>
-
-<div id="errorMessage" class="alert alert-danger mt-3" style="display: none;">
-</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const activitySelect = document.getElementById('activity');
-        const showOtherActivitiesCheckbox = document.getElementById('showOtherActivities');
-        const form = document.getElementById('newTaskForm');
-        
-        const userActivities = {{ user_activities|tojson }};
-        const otherActivities = {{ other_activities|tojson }};
-
-        function updateActivityOptions(showOther) {
-            activitySelect.innerHTML = '<option value="">Seleccionar actividad</option>';
-            const activities = showOther ? otherActivities : userActivities;
-            activities.forEach(activity => {
-                const option = document.createElement('option');
-                option.value = activity;
-                option.textContent = activity;
-                activitySelect.appendChild(option);
-            });
-        }
-
-        updateActivityOptions(false);
-
-        showOtherActivitiesCheckbox.addEventListener('change', function() {
-            updateActivityOptions(this.checked);
-        });
-
-        function updateModuloButtons(numberOfModules) {
-            var moduloButtons = document.getElementById('moduloButtons');
-            moduloButtons.innerHTML = '';
-            for (var i = 1; i <= numberOfModules; i++) {
-                var checked = (i == {{ last_n_modulo|default(1) }}) ? 'checked' : '';
-                moduloButtons.innerHTML += `
-                    <div>
-                        <input type="radio" name="n_modulo" id="modulo${i}" value="${i}" ${checked} required>
-                        <label for="modulo${i}">${i}</label>
-                    </div>
-                `;
-            }
-        }
-
-        document.querySelectorAll('input[name="project"]').forEach(function(radio) {
-            radio.addEventListener('change', function() {
-                var project = this.value;
-                fetch('/get_project_details/' + project)
-                    .then(response => response.json())
-                    .then(data => {
-                        var numberOfModules = data.num_modulos || 3;
-                        updateModuloButtons(numberOfModules);
-                    });
-            });
-        });
-
-        var initialNumberOfModules = {{ num_modulos }};
-        updateModuloButtons(initialNumberOfModules);
-
-        var selectedProject = document.querySelector('input[name="project"]:checked');
-        if (selectedProject) {
-            selectedProject.dispatchEvent(new Event('change'));
-        }
-
-        function startTask(formData) {
-            fetch('{{ url_for("main.start_new_task") }}', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById('successMessage').style.display = 'block';
-                    document.getElementById('errorMessage').style.display = 'none';
-                    form.reset();
-                    window.location.href = '{{ url_for("main.dashboard") }}';
-                } else {
-                    document.getElementById('errorMessage').textContent = data.message;
-                    document.getElementById('errorMessage').style.display = 'block';
-                    document.getElementById('successMessage').style.display = 'none';
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById('errorMessage').textContent = 'Hubo un error al enviar el formulario. Por favor, inténtelo de nuevo.';
-                document.getElementById('errorMessage').style.display = 'block';
-                document.getElementById('successMessage').style.display = 'none';
-            });
-        }
-
-        document.querySelectorAll('.frequent-task-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const formData = new FormData(form);
-                formData.set('activity', this.dataset.activity);
-                startTask(formData);
-                
-                // Disable all buttons immediately
-                document.querySelectorAll('.frequent-task-btn').forEach(btn => {
-                    btn.disabled = true;
-                });
-                
-                // Show immediate feedback
-                this.classList.add('btn-success');
-                this.textContent = 'Iniciando...';
-            });
-        });
-
-        form.addEventListener('submit', function(event) {
-            event.preventDefault();
-            startTask(new FormData(this));
-        });
-    });
-</script>
-{% endblock %}
+    $(document).ready(function() {
+        function updateModuloButtons(numberOfMo

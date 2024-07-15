@@ -93,12 +93,13 @@ def dashboard():
 @bp.route('/start_new_task', methods=['GET', 'POST'])
 def start_new_task():
     if 'user' not in session:
-        return jsonify({'success': False, 'message': 'Usuario no autenticado'}), 401
+        return redirect(url_for('main.index'))
     user = session['user']
     
     active_tasks = Task.get_active_tasks(user['number'])
     if any(task['status'] == 'en proceso' for task in active_tasks):
-        return jsonify({'success': False, 'message': 'Ya tiene una tarea activa. Por favor, finalícela o páusela antes de iniciar una nueva.'}), 400
+        flash('Ya tiene una tarea activa. Por favor, finalícela o páusela antes de iniciar una nueva.', 'warning')
+        return redirect(url_for('main.dashboard'))
     
     if request.method == 'POST':
         project = request.form['project']
@@ -114,7 +115,8 @@ def start_new_task():
                               str(task['n_modulo']) == str(n_modulo)), None)
         
         if existing_task:
-            return jsonify({'success': False, 'message': 'Ya iniciaste esta tarea para este módulo'}), 400
+            flash('Ya iniciaste esta tarea para este módulo', 'warning')
+            return redirect(url_for('main.dashboard'))
         
         session['last_project'] = project
         session['last_house_number'] = house_number
@@ -136,7 +138,9 @@ def start_new_task():
         }
         
         Task.add_task(task_data)
-        return jsonify({'success': True, 'message': 'Nueva tarea iniciada con éxito'}), 200
+        flash('Nueva tarea iniciada con éxito', 'success')
+        
+        return redirect(url_for('main.dashboard'))
     
     last_project = session.get('last_project', '')
     last_house_number = session.get('last_house_number', '')
