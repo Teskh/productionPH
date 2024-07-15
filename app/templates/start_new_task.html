@@ -60,7 +60,7 @@
         <label for="activity" class="form-label">Actividad:</label>
         <select name="activity" id="activity" class="form-select" required>
             <option value="">Seleccionar actividad</option>
-            {% for activity in user_activities %}
+            {% for activity in activities.get(user_specialty, []) %}
                 <option value="{{ activity }}">{{ activity }}</option>
             {% endfor %}
         </select>
@@ -101,10 +101,17 @@
         $('#showOtherActivities').change(function() {
             var activitySelect = $('#activity');
             if (this.checked) {
-                $('option', activitySelect).show();
+                activitySelect.empty().append('<option value="">Seleccionar actividad</option>');
+                {% for specialty, specialty_activities in activities.items() %}
+                    {% for activity in specialty_activities %}
+                        activitySelect.append($('<option></option>').val('{{ activity }}').text('{{ activity }}'));
+                    {% endfor %}
+                {% endfor %}
             } else {
-                $('option:not(:first-child)', activitySelect).hide();
-                $('option[value^="' + '{{ user.specialty }}' + '"]', activitySelect).show();
+                activitySelect.empty().append('<option value="">Seleccionar actividad</option>');
+                {% for activity in activities.get(user_specialty, []) %}
+                    activitySelect.append($('<option></option>').val('{{ activity }}').text('{{ activity }}'));
+                {% endfor %}
             }
         });
 
