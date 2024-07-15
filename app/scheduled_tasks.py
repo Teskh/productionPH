@@ -6,4 +6,4 @@ def pause_active_tasks():
     active_tasks = Task.get_all_active_tasks()
     timestamp = format_timestamp()
     for task in active_tasks:
-        Task.update_task(task['task_id'], 'Paused', timestamp, "Fin del día automático")
+        Task.update_task(task['task_id'], 'Paused', timestamp, "Final del día automático")

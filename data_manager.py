@@ -22,9 +22,9 @@ def load_worker_data(file_path='data/worker_data.xlsx'):
             'gender': gender
         }
     
-    print("Loaded worker data:")
-    print("Supervisors:", dict(supervisors))
-    print("Workers:", workers)
+    # print("Loaded worker data:")
+    # print("Supervisors:", dict(supervisors))
+    # print("Workers:", workers)
     return dict(supervisors), workers
 
 def load_project_data(file_path='data/project_data.xlsx'):
@@ -41,7 +41,7 @@ def load_project_data(file_path='data/project_data.xlsx'):
             'num_modulos': num_modulos
         }
     
-    print("Loaded project data:", projects)
+    # print("Loaded project data:", projects)
     return projects
 
 def load_activity_data(file_path='data/activity_data.xlsx'):
@@ -55,7 +55,7 @@ def load_activity_data(file_path='data/activity_data.xlsx'):
         specialty, activity = row
         activities[specialty.upper()].append(activity)
     
-    print("Loaded activity data:", dict(activities))
+    # print("Loaded activity data:", dict(activities))
     return dict(activities)
 
 # Test the functions

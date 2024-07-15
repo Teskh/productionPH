@@ -1,7 +1,7 @@
 # Production Tracking App
 
 ## Description
-The Production Tracking App is a web-based application designed to monitor and manage production activities across multiple lines and stations in a manufacturing setting. It's primarily used on tablets positioned at various stations along production lines, allowing workers (referred to as "colaboradores") to log their activities and track production data in real-time. The application is designed for a Spanish-speaking userbase, with all user-facing content presented in Spanish.
+The Production Tracking App is a web-based application designed to monitor and manage production activities across multiple lines and stations in a manufacturing setting. It's primarily used on tablets positioned at various stations along production lines, allowing workers to log their activities and track production data in real-time. The application is designed for a Spanish-speaking userbase, with all user-facing content presented in Spanish.
 
 ## Key Features
 
@@ -95,14 +95,4 @@ Four main Excel files are used for data storage:
 ### Automatic Task Pausing
 - Implemented a scheduled task to automatically pause active tasks at the end of the day
 
-## Setup and Installation
-(Include instructions for setting up the project, including required dependencies and configuration steps)
 
-## Usage
-(Provide basic instructions on how to use the application, including any important workflows or features)
-
-## Contributing
-(If applicable, include guidelines for contributing to the project)
-
-## License
-(Specify the license under which the project is released)

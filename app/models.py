@@ -143,26 +143,3 @@ class Task:
                     }
                     user_tasks.append(task)
             return user_tasks
-
-    @staticmethod
-    def get_user_tasks(worker_number):
-        lock = FileLock(EXCEL_LOCK_FILE)
-        with lock:
-            wb = openpyxl.load_workbook(EXCEL_FILE)
-            ws = wb.active
-            user_tasks = []
-            for row in ws.iter_rows(min_row=2, values_only=True):
-                if str(row[2]) == str(worker_number):
-                    task = {
-                        'task_id': row[0],
-                        'start_time': row[1],
-                        'worker_number': row[2],
-                        'user': row[4],
-                        'project': row[6],
-                        'house_number': row[7],
-                        'n_modulo': row[8],
-                        'activity': row[9],
-                        'status': row[10],
-                    }
-                    user_tasks.append(task)
-            return user_tasks
