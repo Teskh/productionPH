@@ -157,6 +157,9 @@ def start_new_task():
     task_counter = Counter(task['activity'] for task in user_tasks)
     frequent_tasks = [task for task, count in task_counter.most_common(3) if count >= 3]
     
+    # Get the number of modules for the last selected project
+    num_modulos = projects_data.get(last_project, {}).get('num_modulos', 1) if last_project else 1
+    
     return render_template('start_new_task.html', 
                            user=user, 
                            projects=projects_data, 
@@ -167,7 +170,8 @@ def start_new_task():
                            last_project=last_project,
                            last_house_number=last_house_number,
                            last_n_modulo=last_n_modulo,
-                           frequent_tasks=frequent_tasks)
+                           frequent_tasks=frequent_tasks,
+                           num_modulos=num_modulos)
 
 @bp.route('/pause_task', methods=['POST'])
 def pause_task():
