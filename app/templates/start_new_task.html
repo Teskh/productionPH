@@ -70,7 +70,7 @@
         </div>
     </div>
 
-    <button type="submit" class="btn btn-primary w-100">Iniciar Tarea</button>
+    <button type="submit" class="btn btn-primary w-100" id="startTaskBtn">Iniciar Tarea</button>
 </form>
 {% endblock %}
 
@@ -115,6 +115,22 @@
         // Set up click handlers for frequent task buttons
         $('.frequent-task-btn').click(function() {
             $('#activity').val($(this).data('activity'));
+            // Trigger form submission
+            $('form').submit();
+        });
+
+        // Prevent default form submission
+        $('form').submit(function(e) {
+            e.preventDefault();
+            
+            // Validate form
+            if (this.checkValidity()) {
+                // If form is valid, submit it
+                this.submit();
+            } else {
+                // If form is invalid, show validation messages
+                $(this).addClass('was-validated');
+            }
         });
     });
 </script>
