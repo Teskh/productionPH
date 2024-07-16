@@ -123,7 +123,18 @@ def start_new_task():
         finished_task = Task.get_finished_task(project, house_number, n_modulo, activity)
         if finished_task:
             flash('Esta tarea ya ha sido finalizada para este módulo', 'warning')
-            return redirect(url_for('main.dashboard'))
+            return render_template('start_new_task.html', 
+                                   user=user, 
+                                   projects=projects_data, 
+                                   activities=activities,
+                                   user_specialty=user['specialty'],
+                                   line=session.get('line', 'L1'),
+                                   station_i=session.get('station', 1),
+                                   last_project=project,
+                                   last_house_number=house_number,
+                                   last_n_modulo=n_modulo,
+                                   frequent_tasks=frequent_tasks,
+                                   num_modulos=num_modulos)
         
         session['last_project'] = project
         session['last_house_number'] = house_number
