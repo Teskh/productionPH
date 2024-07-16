@@ -131,7 +131,7 @@ def start_new_task():
         # Check for finished tasks
         finished_task = Task.get_finished_task(project, house_number, n_modulo, activity)
         if finished_task:
-            flash('Esta tarea ya ha sido finalizada para este módulo', 'warning')
+            flash('Esta tarea ya ha sido realizada para este módulo', 'warning')
             return render_template('start_new_task.html', 
                                    user=user, 
                                    projects=projects_data, 
