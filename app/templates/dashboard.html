@@ -52,7 +52,7 @@
                     </td>
                     <td>
                         <div class="ubicacion-info">
-                            <div class="estacion">Estación Inicial: {{ active_task.station_i }}</div>
+                            <div class="estacion">Estación {{ active_task.station_i }}</div>
                             {% if active_task.station_f %}
                                 <div class="estacion">Estación Final: {{ active_task.station_f }}</div>
                             {% endif %}
@@ -145,8 +145,8 @@
                         <select name="pause_type" id="pause_type" class="form-select" required>
                             <option value="">Seleccionar razón</option>
                             <option value="end_of_day">Final del Día</option>
-                            <option value="lunch_break">Pausa para Almuerzo</option>
                             <option value="lack_of_materials">Falta de Materiales</option>
+                            <option value="group_activity">Término Tarea Grupal</option>
                             <option value="other">Otra Razón</option>
                         </select>
                     </div>
