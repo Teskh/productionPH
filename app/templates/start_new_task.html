@@ -70,13 +70,61 @@
         </div>
     </div>
 
+    <button type="button" class="btn btn-secondary w-100 mb-3" id="unlisted-activity-btn">Actividad No Listada</button>
+
     <button type="submit" class="btn btn-primary w-100" id="startTaskBtn">Iniciar Tarea</button>
 </form>
+
+<!-- Modal for unlisted activity -->
+<div class="modal fade" id="unlistedActivityModal" tabindex="-1" aria-labelledby="unlistedActivityModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="unlistedActivityModalLabel">Actividad No Listada</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="unlistedActivity" class="form-label">Actividad:</label>
+                    <input type="text" class="form-control" id="unlistedActivity" required>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="startUnlistedTaskBtn">Iniciar Tarea</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
     $(document).ready(function() {
+        // Initialize the modal
+        var unlistedActivityModal = new bootstrap.Modal(document.getElementById('unlistedActivityModal'));
+
+        // Show the modal when the "Actividad No Listada" button is clicked
+        $('#unlisted-activity-btn').click(function() {
+            unlistedActivityModal.show();
+        });
+
+        // Handle the "Iniciar Tarea" button click in the modal
+        $('#startUnlistedTaskBtn').click(function() {
+            var unlistedActivity = $('#unlistedActivity').val().trim();
+            if (unlistedActivity) {
+                $('#activity').append($('<option>', {
+                    value: unlistedActivity,
+                    text: unlistedActivity
+                }));
+                $('#activity').val(unlistedActivity);
+                unlistedActivityModal.hide();
+                $('form').submit();
+            } else {
+                alert('Por favor, ingrese una actividad.');
+            }
+        });
+
         function updateModuloButtons(numberOfModulos) {
             var moduloButtons = $('#moduloButtons');
             moduloButtons.empty();
