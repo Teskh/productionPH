@@ -88,6 +88,20 @@
     white-space: nowrap;
 }
 
+.comment-btn {
+    padding: 0.25rem;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.comment-icon {
+    width: 20px;
+    height: 20px;
+}
+
 .casa-column {
     width: 20%; /* Adjust width as needed */
 }
