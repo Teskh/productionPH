@@ -204,8 +204,24 @@ class Task:
                         'status': row[10],
                         'station_i': row[11],
                         'station_f': row[12],
+                        'comment': row[21] if len(row) > 21 else '',
                     }
             return None
+
+    @staticmethod
+    def add_comment(task_id, comment):
+        lock = FileLock(EXCEL_LOCK_FILE)
+        with lock:
+            wb = openpyxl.load_workbook(EXCEL_FILE)
+            ws = wb.active
+            for row in ws.iter_rows(min_row=2, values_only=False):
+                if row[0].value == task_id:
+                    # Ensure the row has enough cells
+                    while len(row) < 22:
+                        ws.cell(row=row[0].row, column=len(row)+1, value='')
+                    row[21].value = comment
+                    break
+            wb.save(EXCEL_FILE)
 
     @staticmethod
     def get_finished_task(project, house_number, n_modulo, activity):

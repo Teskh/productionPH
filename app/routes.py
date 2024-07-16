@@ -299,3 +299,20 @@ def settings():
 def logout():
     session.pop('user', None)
     return redirect(url_for('main.index'))
+
+@bp.route('/add_comment', methods=['POST'])
+def add_comment():
+    if 'user' not in session:
+        return jsonify({'success': False, 'message': 'Usuario no autenticado'}), 401
+    
+    task_id = request.form.get('task_id')
+    comment = request.form.get('comment')
+    
+    if not task_id or not comment:
+        return jsonify({'success': False, 'message': 'Datos incompletos'}), 400
+    
+    try:
+        Task.add_comment(task_id, comment)
+        return jsonify({'success': True, 'message': 'Comentario agregado con éxito'})
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error al agregar comentario: {str(e)}'}), 500
