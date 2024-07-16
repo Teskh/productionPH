@@ -107,6 +107,7 @@ def start_new_task():
         n_modulo = request.form['n_modulo']
         activity = request.form['activity']
         
+        # Check for existing active tasks
         existing_task = next((task for task in active_tasks if 
                               task['user'] == user['name'] and
                               task['activity'] == activity and
@@ -116,6 +117,12 @@ def start_new_task():
         
         if existing_task:
             flash('Ya iniciaste esta tarea para este módulo', 'warning')
+            return redirect(url_for('main.dashboard'))
+        
+        # Check for finished tasks
+        finished_task = Task.get_finished_task(project, house_number, n_modulo, activity)
+        if finished_task:
+            flash('Esta tarea ya ha sido finalizada para este módulo', 'warning')
             return redirect(url_for('main.dashboard'))
         
         session['last_project'] = project
