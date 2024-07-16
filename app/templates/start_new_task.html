@@ -7,6 +7,13 @@
 {% endblock %}
 
 {% block content %}
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
 <button class="back-arrow" onclick="window.history.back()">←</button>
 <h1 class="task-title">Iniciar Nueva Tarea</h1>
 <form action="{{ url_for('main.start_new_task') }}" method="post">
