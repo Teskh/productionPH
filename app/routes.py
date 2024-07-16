@@ -101,6 +101,8 @@ def start_new_task():
         flash('Ya tiene una tarea activa. Por favor, finalícela o páusela antes de iniciar una nueva.', 'warning')
         return redirect(url_for('main.dashboard'))
     
+    projects_data = {project: projects[project] for project in projects}
+    
     if request.method == 'POST':
         project = request.form['project']
         house_number = request.form['house_number']
@@ -134,7 +136,7 @@ def start_new_task():
                                    last_house_number=house_number,
                                    last_n_modulo=n_modulo,
                                    frequent_tasks=frequent_tasks,
-                                   num_modulos=num_modulos)
+                                   num_modulos=projects_data[project]['num_modulos'])
         
         session['last_project'] = project
         session['last_house_number'] = house_number
@@ -164,8 +166,6 @@ def start_new_task():
     last_project = session.get('last_project', '')
     last_house_number = session.get('last_house_number', '')
     last_n_modulo = session.get('last_n_modulo', '')
-    
-    projects_data = {project: projects[project] for project in projects}
     
     all_activities = [activity for specialty_activities in activities.values() for activity in specialty_activities]
     user_activities = activities.get(user['specialty'], [])
