@@ -70,7 +70,7 @@
         </div>
     </div>
 
-    <button type="button" class="btn btn-secondary w-100 mb-3" id="unlisted-activity-btn">Actividad No Listada</button>
+    <button type="button" class="btn btn-outline-secondary mb-3 text-start" id="unlisted-activity-btn" style="font-size: 0.9em;">Actividad No Listada</button>
 
     <button type="submit" class="btn btn-primary w-100" id="startTaskBtn">Iniciar Tarea</button>
 </form>
@@ -90,8 +90,10 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="startUnlistedTaskBtn">Iniciar Tarea</button>
+                <div class="d-flex justify-content-between w-100">
+                    <button type="button" class="btn btn-secondary flex-grow-1 me-2" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary flex-grow-1" id="startUnlistedTaskBtn">Iniciar Tarea</button>
+                </div>
             </div>
         </div>
     </div>
