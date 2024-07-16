@@ -156,7 +156,7 @@ def start_new_task():
     # Get the most frequent tasks for the user
     user_tasks = Task.get_user_tasks(user['number'])
     task_counter = Counter(task['activity'] for task in user_tasks)
-    frequent_tasks = [task for task, count in task_counter.most_common(3) if count >= 1]
+    frequent_tasks = [task for task, count in task_counter.most_common(3) if count >= 2]
     
     # Get the number of modules for the last selected project
     num_modulos = projects_data.get(last_project, {}).get('num_modulos', 1) if last_project else 1
