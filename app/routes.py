@@ -228,7 +228,7 @@ def finish_task():
     task_id = request.form.get('task_id')
     timestamp = format_timestamp()
     try:
-        Task.update_task(task_id, 'Finished', timestamp, {'station_f': session['station']})
+        Task.update_task(task_id, 'Finished', timestamp, station=session['station'])
         flash('Tarea finalizada con éxito', 'success')
     except Exception as e:
         flash(f'Error al finalizar la tarea: {str(e)}', 'danger')

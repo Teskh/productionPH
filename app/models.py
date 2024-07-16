@@ -94,7 +94,7 @@ class Task:
         return True  # Indicate successful task addition
 
     @staticmethod
-    def update_task(task_id, new_status, timestamp=None, pause_reason=None):
+    def update_task(task_id, new_status, timestamp=None, pause_reason=None, station=None):
         lock = FileLock(EXCEL_LOCK_FILE)
         with lock:
             wb = openpyxl.load_workbook(EXCEL_FILE)
@@ -107,20 +107,20 @@ class Task:
                     
                     row[10].value = new_status
                     if new_status == 'Paused':
-                        if not row[13].value:  # First pause
-                            row[13].value = timestamp
-                            row[14].value = pause_reason
-                        elif not row[16].value:  # Second pause
-                            row[16].value = timestamp
-                            row[17].value = pause_reason
+                        if not row[14].value:  # First pause
+                            row[14].value = timestamp
+                            row[15].value = pause_reason
+                        elif not row[17].value:  # Second pause
+                            row[17].value = timestamp
+                            row[18].value = pause_reason
                     elif new_status == 'en proceso':
-                        if row[13].value and not row[15].value:  # First resume
-                            row[15].value = timestamp
-                        elif row[16].value and not row[18].value:  # Second resume
-                            row[18].value = timestamp
+                        if row[14].value and not row[16].value:  # First resume
+                            row[16].value = timestamp
+                        elif row[17].value and not row[19].value:  # Second resume
+                            row[19].value = timestamp
                     elif new_status == 'Finished':
-                        row[19].value = timestamp
-                        row[12].value = task_data.get('station_f', '')  # Update station_f when task is finished
+                        row[20].value = timestamp
+                        row[12].value = station  # Update station_f when task is finished
                     break
             wb.save(EXCEL_FILE)
 
