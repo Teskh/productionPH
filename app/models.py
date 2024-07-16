@@ -206,3 +206,30 @@ class Task:
                         'station_f': row[12],
                     }
             return None
+
+    @staticmethod
+    def get_finished_task(project, house_number, n_modulo, activity):
+        lock = FileLock(EXCEL_LOCK_FILE)
+        with lock:
+            wb = openpyxl.load_workbook(EXCEL_FILE)
+            ws = wb.active
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                if (row[6] == project and 
+                    str(row[7]) == str(house_number) and 
+                    str(row[8]) == str(n_modulo) and 
+                    row[9] == activity and 
+                    row[10] == 'Finished'):
+                    return {
+                        'task_id': row[0],
+                        'start_time': row[1],
+                        'worker_number': row[2],
+                        'user': row[4],
+                        'project': row[6],
+                        'house_number': row[7],
+                        'n_modulo': row[8],
+                        'activity': row[9],
+                        'status': row[10],
+                        'station_i': row[11],
+                        'station_f': row[12],
+                    }
+            return None
