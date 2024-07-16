@@ -61,10 +61,10 @@
                     </td>
                     <td>
                         <div class="action-buttons">
-                            <button class="btn btn-warning btn-sm action-button text-white rounded" onclick="showPauseOptions('{{ active_task.task_id }}')">Pausar</button>
                             <button class="btn btn-info btn-sm action-button text-white rounded comment-btn" onclick="showCommentModal('{{ active_task.task_id }}')">
                                 <img src="{{ url_for('static', filename='images/comment.png') }}" alt="Comentar" class="comment-icon">
                             </button>
+                            <button class="btn btn-warning btn-sm action-button text-white rounded" onclick="showPauseOptions('{{ active_task.task_id }}')">Pausar</button>
                             <button class="btn btn-primary btn-sm action-button text-white rounded" onclick="finishTask('{{ active_task.task_id }}')">Finalizar</button>
                         </div>
                     </td>
