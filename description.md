@@ -9,7 +9,7 @@ The Production Tracking App is a web-based application designed for monitoring a
 ### 1. Application Structure (app/__init__.py)
 
 This file initializes the Flask application and sets up the background scheduler for automatic task pausing at the end of the day.
-
+Pap
 - `create_app()`: Creates and configures the Flask application, registers blueprints, and starts the background scheduler.
 
 ### 2. Configuration (config.py)
