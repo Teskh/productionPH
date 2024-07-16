@@ -146,3 +146,63 @@ class Task:
                     }
                     user_tasks.append(task)
             return user_tasks
+
+    @staticmethod
+    def get_related_active_tasks(project, house_number, n_modulo, activity):
+        lock = FileLock(EXCEL_LOCK_FILE)
+        with lock:
+            wb = openpyxl.load_workbook(EXCEL_FILE)
+            ws = wb.active
+            related_tasks = []
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                if (row[6] == project and 
+                    str(row[7]) == str(house_number) and 
+                    str(row[8]) == str(n_modulo) and 
+                    row[9] == activity and 
+                    row[10] == 'en proceso'):
+                    related_tasks.append({
+                        'task_id': row[0],
+                        'worker_number': row[2],
+                        'status': row[10],
+                    })
+            return related_tasks
+
+    @staticmethod
+    def finish_related_tasks(project, house_number, n_modulo, activity, timestamp, station):
+        lock = FileLock(EXCEL_LOCK_FILE)
+        with lock:
+            wb = openpyxl.load_workbook(EXCEL_FILE)
+            ws = wb.active
+            for row in ws.iter_rows(min_row=2, values_only=False):
+                if (row[6].value == project and 
+                    str(row[7].value) == str(house_number) and 
+                    str(row[8].value) == str(n_modulo) and 
+                    row[9].value == activity and 
+                    (row[10].value == 'en proceso' or row[10].value == 'Paused')):
+                    row[10].value = 'Finished'
+                    row[20].value = timestamp
+                    row[12].value = station
+            wb.save(EXCEL_FILE)
+
+    @staticmethod
+    def get_task_by_id(task_id):
+        lock = FileLock(EXCEL_LOCK_FILE)
+        with lock:
+            wb = openpyxl.load_workbook(EXCEL_FILE)
+            ws = wb.active
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                if row[0] == task_id:
+                    return {
+                        'task_id': row[0],
+                        'start_time': row[1],
+                        'worker_number': row[2],
+                        'user': row[4],
+                        'project': row[6],
+                        'house_number': row[7],
+                        'n_modulo': row[8],
+                        'activity': row[9],
+                        'status': row[10],
+                        'station_i': row[11],
+                        'station_f': row[12],
+                    }
+            return None

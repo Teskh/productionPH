@@ -227,9 +227,25 @@ def finish_task():
         return redirect(url_for('main.index'))
     task_id = request.form.get('task_id')
     timestamp = format_timestamp()
+    
+    # Get the task details
+    task = Task.get_task_by_id(task_id)
+    if not task:
+        flash('Tarea no encontrada', 'danger')
+        return redirect(url_for('main.dashboard'))
+    
+    # Check for related active tasks
+    related_tasks = Task.get_related_active_tasks(task['project'], task['house_number'], task['n_modulo'], task['activity'])
+    
+    # If there are other active related tasks, don't allow finishing
+    if len(related_tasks) > 1:  # > 1 because it includes the current task
+        flash('No se puede finalizar la tarea porque otros usuarios tienen la misma tarea activa', 'warning')
+        return redirect(url_for('main.dashboard'))
+    
     try:
-        Task.update_task(task_id, 'Finished', timestamp, station=session['station'])
-        flash('Tarea finalizada con éxito', 'success')
+        # Finish the task for all related users (including paused tasks)
+        Task.finish_related_tasks(task['project'], task['house_number'], task['n_modulo'], task['activity'], timestamp, session['station'])
+        flash('Tarea finalizada con éxito para todos los usuarios relacionados', 'success')
     except Exception as e:
         flash(f'Error al finalizar la tarea: {str(e)}', 'danger')
     return redirect(url_for('main.dashboard'))
