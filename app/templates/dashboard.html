@@ -52,7 +52,10 @@
                     </td>
                     <td>
                         <div class="ubicacion-info">
-                            <div class="estacion">Estación {{ active_task.station }}</div>
+                            <div class="estacion">Estación Inicial: {{ active_task.station_i }}</div>
+                            {% if active_task.station_f %}
+                                <div class="estacion">Estación Final: {{ active_task.station_f }}</div>
+                            {% endif %}
                             <div class="linea">Línea {{ active_task.line }}</div>
                         </div>
                     </td>

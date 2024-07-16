@@ -133,7 +133,8 @@ def start_new_task():
             'n_modulo': n_modulo,
             'activity': activity,
             'status': 'en proceso',
-            'station': session['station'],
+            'station_i': session['station'],
+            'station_f': '',  # Initially empty
             'line': session['line']
         }
         
@@ -166,7 +167,7 @@ def start_new_task():
                            activities=activities,
                            user_specialty=user['specialty'],
                            line=session.get('line', 'L1'),
-                           station=session.get('station', 1),
+                           station_i=session.get('station', 1),
                            last_project=last_project,
                            last_house_number=last_house_number,
                            last_n_modulo=last_n_modulo,
@@ -227,7 +228,7 @@ def finish_task():
     task_id = request.form.get('task_id')
     timestamp = format_timestamp()
     try:
-        Task.update_task(task_id, 'Finished', timestamp)
+        Task.update_task(task_id, 'Finished', timestamp, {'station_f': session['station']})
         flash('Tarea finalizada con éxito', 'success')
     except Exception as e:
         flash(f'Error al finalizar la tarea: {str(e)}', 'danger')

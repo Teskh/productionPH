@@ -5,7 +5,7 @@ import os
 EXCEL_FILE = 'data/production_data.xlsx'
 EXPECTED_COLUMNS = [
     'Task ID', 'Start Timestamp', 'Worker Number', 'Supervisor', 'User', 'Specialty', 'Project', 
-    'House Number', 'Nº modulo', 'Activity', 'Status', 'Station', 'Line',
+    'House Number', 'Nº modulo', 'Activity', 'Status', 'Station_i', 'Station_f', 'Line',
     'Pause 1 Timestamp', 'Pause 1 Reason', 'Resume 1 Timestamp',
     'Pause 2 Timestamp', 'Pause 2 Reason', 'Resume 2 Timestamp',
     'End Timestamp'

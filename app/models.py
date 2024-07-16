@@ -27,8 +27,9 @@ class Task:
                         'n_modulo': row[8],
                         'activity': row[9],
                         'status': row[10],
-                        'station': row[11] if len(row) > 11 else '',
-                        'line': row[12] if len(row) > 12 else '',
+                        'station_i': row[11] if len(row) > 11 else '',
+                        'station_f': row[12] if len(row) > 12 else '',
+                        'line': row[13] if len(row) > 13 else '',
                     }
                     if len(row) > 13:
                         task['pause_1_time'] = row[13]
@@ -82,7 +83,8 @@ class Task:
                 task_data.get('n_modulo', ''),
                 task_data.get('activity', ''),
                 'en proceso',  # Default status when starting a new task
-                task_data.get('station', ''),
+                task_data.get('station_i', ''),
+                '',  # station_f (empty initially)
                 task_data.get('line', ''),
                 '', '', '', '', '', '',  # Pause and Resume columns
                 ''  # End Timestamp
@@ -118,6 +120,7 @@ class Task:
                             row[18].value = timestamp
                     elif new_status == 'Finished':
                         row[19].value = timestamp
+                        row[12].value = task_data.get('station_f', '')  # Update station_f when task is finished
                     break
             wb.save(EXCEL_FILE)
 
