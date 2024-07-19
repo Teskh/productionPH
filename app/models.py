@@ -14,7 +14,8 @@ class Task(db.Model):
     end_time = db.Column(db.DateTime)
     status = db.Column(db.String(20), nullable=False)
     comment = db.Column(db.Text)
-    comment = db.Column(db.Text)
+    station_i = db.Column(db.String(50))
+    line = db.Column(db.String(50))
 
     def __repr__(self):
         return f'<Task {self.id} - {self.worker_name} - {self.activity}>'
@@ -40,6 +41,11 @@ class Task(db.Model):
                 project=project,
                 house=house,
                 module=module,
+                activity=activity,
+                start_time=datetime.now(),
+                status='en proceso',
+                station_i=station_i,
+                line=line
                 activity=activity,
                 start_time=datetime.now(),
                 status='en proceso',
