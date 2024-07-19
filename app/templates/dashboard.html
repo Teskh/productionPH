@@ -303,5 +303,22 @@
         document.body.appendChild(form);
         form.submit();
     }
+
+    function finishTask(taskId) {
+        if (!taskId) {
+            alert('Error: No se pudo obtener el ID de la tarea. Por favor, recargue la página e intente nuevamente.');
+            return;
+        }
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = "{{ url_for('main.finish_task') }}";
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'task_id';
+        input.value = taskId;
+        form.appendChild(input);
+        document.body.appendChild(form);
+        form.submit();
+    }
 </script>
 {% endblock %}
