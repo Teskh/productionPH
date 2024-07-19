@@ -12,8 +12,8 @@ def load_excel_data(file_path):
         print(f"Error loading Excel file {file_path}: {str(e)}")
         return pd.DataFrame()  # Return an empty DataFrame on error
 
-def load_worker_data():
-    df = load_excel_data(current_app.config['WORKER_DATA_PATH'])
+def load_worker_data(worker_data_path):
+    df = load_excel_data(worker_data_path)
     supervisors = defaultdict(list)
     workers = {}
     

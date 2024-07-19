@@ -8,9 +8,11 @@ from collections import Counter
 
 bp = Blueprint('main', __name__)
 
-supervisors, workers = load_worker_data()
-projects = load_project_data()
-activities = load_activity_data()
+from flask import current_app
+
+supervisors, workers = load_worker_data(current_app.config['WORKER_DATA_PATH'])
+projects = load_project_data(current_app.config['PROJECT_DATA_PATH'])
+activities = load_activity_data(current_app.config['ACTIVITY_DATA_PATH'])
 
 @bp.route('/')
 def index():
