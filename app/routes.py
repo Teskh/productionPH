@@ -265,10 +265,23 @@ def pause_task():
     
     timestamp = format_timestamp()
     try:
-        Task.update_task(task_id, 'Paused', timestamp, pause_reason)
-        flash('Tarea pausada con éxito', 'success')
+        task = Task.get_task_by_id(task_id)
+        if task:
+            if str(task.worker_number) != str(session['user']['number']):
+                current_app.logger.error(f"Task {task_id} does not belong to the current user")
+                flash('Esta tarea no pertenece al usuario actual', 'danger')
+                return redirect(url_for('main.dashboard'))
+            
+            updated_task = Task.update_task(task_id, 'Paused', timestamp, pause_reason)
+            if updated_task:
+                flash('Tarea pausada con éxito', 'success')
+            else:
+                flash('Error al pausar la tarea', 'danger')
+        else:
+            flash('Tarea no encontrada', 'danger')
     except SQLAlchemyError as e:
         db.session.rollback()
+        current_app.logger.error(f"SQLAlchemy error pausing task: {str(e)}")
         flash(f'Error al pausar la tarea: {str(e)}', 'danger')
     return redirect(url_for('main.dashboard'))
 
