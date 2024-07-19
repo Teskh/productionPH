@@ -101,6 +101,7 @@ class Task(db.Model):
 
     @staticmethod
     def finish_related_tasks(project, house_number, n_modulo, activity, timestamp, station):
+        from flask import current_app
         try:
             tasks = Task.query.filter(
                 Task.project == project,
@@ -110,16 +111,24 @@ class Task(db.Model):
                 Task.status.in_(['en proceso', 'Paused'])
             ).all()
             
+            current_app.logger.debug(f"Found {len(tasks)} related tasks to finish")
+            
             for task in tasks:
+                current_app.logger.debug(f"Finishing task: {task.to_dict()}")
                 task.status = 'Finished'
                 task.end_time = timestamp
                 task.station_f = station
             
             db.session.commit()
+            current_app.logger.info("Successfully finished all related tasks")
             return True
         except SQLAlchemyError as e:
             db.session.rollback()
-            print(f"Error finishing related tasks: {str(e)}")
+            current_app.logger.error(f"SQLAlchemy error finishing related tasks: {str(e)}")
+            return False
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(f"Unexpected error finishing related tasks: {str(e)}")
             return False
 
     def to_dict(self):

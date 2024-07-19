@@ -300,32 +300,44 @@ def finish_task():
     task_id = request.form.get('task_id')
     timestamp = format_timestamp()
     
+    current_app.logger.debug(f"Attempting to finish task with ID: {task_id}")
+    
     try:
         # Get the task details
         task = Task.get_task_by_id(task_id)
         if not task:
+            current_app.logger.error(f"Task with ID {task_id} not found")
             flash('Tarea no encontrada', 'danger')
             return redirect(url_for('main.dashboard'))
         
-        current_app.logger.debug(f"Finishing task: {task}")
+        current_app.logger.debug(f"Finishing task: {task.to_dict()}")
         
         # Check for related active tasks
         related_tasks = Task.get_related_active_tasks(task.project, task.house, task.module, task.activity)
         
-        current_app.logger.debug(f"Related tasks: {related_tasks}")
+        current_app.logger.debug(f"Related tasks: {[t.to_dict() for t in related_tasks]}")
         
         # If there are other active related tasks, don't allow finishing
         if len(related_tasks) > 1:  # > 1 because it includes the current task
+            current_app.logger.warning(f"Cannot finish task {task_id} due to related active tasks")
             flash('No se puede finalizar la tarea porque otros usuarios tienen la misma tarea activa', 'warning')
             return redirect(url_for('main.dashboard'))
         
         # Finish the task for all related users (including paused tasks)
-        Task.finish_related_tasks(task.project, task.house, task.module, task.activity, timestamp, session.get('station'))
-        flash('Tarea finalizada con éxito para todos los usuarios relacionados', 'success')
+        result = Task.finish_related_tasks(task.project, task.house, task.module, task.activity, timestamp, session.get('station'))
+        if result:
+            current_app.logger.info(f"Successfully finished task {task_id} and related tasks")
+            flash('Tarea finalizada con éxito para todos los usuarios relacionados', 'success')
+        else:
+            current_app.logger.error(f"Failed to finish task {task_id} and related tasks")
+            flash('Error al finalizar la tarea', 'danger')
     except SQLAlchemyError as e:
         db.session.rollback()
-        current_app.logger.error(f"Error finishing task: {str(e)}")
+        current_app.logger.error(f"SQLAlchemy error finishing task: {str(e)}")
         flash(f'Error al finalizar la tarea: {str(e)}', 'danger')
+    except Exception as e:
+        current_app.logger.error(f"Unexpected error finishing task: {str(e)}")
+        flash(f'Error inesperado al finalizar la tarea: {str(e)}', 'danger')
     return redirect(url_for('main.dashboard'))
 
 @bp.route('/get_project_details/<project>')
