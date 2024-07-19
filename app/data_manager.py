@@ -44,8 +44,8 @@ def load_project_data():
     
     return projects
 
-def load_activity_data():
-    df = load_excel_data(current_app.config['ACTIVITY_DATA_PATH'])
+def load_activity_data(activity_data_path):
+    df = load_excel_data(activity_data_path)
     activities = defaultdict(list)
     
     for _, row in df.iterrows():
