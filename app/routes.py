@@ -45,11 +45,15 @@ def get_workers(supervisor):
 
 @bp.route('/submit', methods=['POST'])
 def submit():
+    current_app.logger.debug("Submit route called")
     identification_method = request.form['identification_method']
+    current_app.logger.debug(f"Identification method: {identification_method}")
     if identification_method == 'worker_number':
         worker_number = request.form['worker_number']
+        current_app.logger.debug(f"Worker number: {worker_number}")
         worker = next((w for w in workers.values() if str(w['number']) == worker_number), None)
         if worker:
+            current_app.logger.debug(f"Worker found: {worker}")
             session['user'] = {
                 'name': worker['name'],
                 'number': worker['number'],
@@ -59,15 +63,19 @@ def submit():
                 'line': session.get('line', 'L1'),
                 'station': session.get('station', 1)
             }
+            current_app.logger.debug("Redirecting to dashboard")
             return redirect(url_for('main.dashboard'))
         else:
+            current_app.logger.debug("Invalid worker number")
             flash('Número de trabajador inválido', 'danger')
             return redirect(url_for('main.index'))
     elif identification_method == 'supervisor':
         worker_name = request.form['worker_name']
         supervisor = request.form['supervisor']
+        current_app.logger.debug(f"Worker name: {worker_name}, Supervisor: {supervisor}")
         worker = workers.get(worker_name)
         if worker and worker['supervisor'] == supervisor:
+            current_app.logger.debug(f"Worker found: {worker}")
             session['user'] = {
                 'name': worker['name'],
                 'number': worker['number'],
@@ -77,10 +85,13 @@ def submit():
                 'line': session.get('line', 'L1'),
                 'station': session.get('station', 1)
             }
+            current_app.logger.debug("Redirecting to dashboard")
             return redirect(url_for('main.dashboard'))
         else:
+            current_app.logger.debug("Worker not found or incorrect supervisor")
             flash('Trabajador no encontrado o supervisor incorrecto', 'danger')
             return redirect(url_for('main.index'))
+    current_app.logger.debug("Invalid identification method")
     flash('Método de identificación inválido', 'danger')
     return redirect(url_for('main.index'))
 
