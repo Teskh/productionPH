@@ -102,6 +102,7 @@ class Task(db.Model):
     @staticmethod
     def finish_related_tasks(project, house_number, n_modulo, activity, timestamp, station):
         from flask import current_app
+        from datetime import datetime
         try:
             tasks = Task.query.filter(
                 Task.project == project,
@@ -113,10 +114,12 @@ class Task(db.Model):
             
             current_app.logger.debug(f"Found {len(tasks)} related tasks to finish")
             
+            end_time = datetime.strptime(timestamp, '%Y-%m-%d %H:%M')
+            
             for task in tasks:
                 current_app.logger.debug(f"Finishing task: {task.to_dict()}")
                 task.status = 'Finished'
-                task.end_time = timestamp
+                task.end_time = end_time
                 task.station_f = station
             
             db.session.commit()
