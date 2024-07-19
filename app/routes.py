@@ -265,7 +265,7 @@ def pause_task():
     
     timestamp = format_timestamp()
     try:
-        task = Task.query.get(task_id)
+        task = Task.query.get(int(task_id))
         if task:
             if str(task.worker_number) != str(session['user']['number']):
                 current_app.logger.error(f"Task {task_id} does not belong to the current user")
@@ -276,13 +276,18 @@ def pause_task():
             task.pause_reason = pause_reason
             task.pause_time = timestamp
             db.session.commit()
+            current_app.logger.info(f"Task {task_id} paused successfully")
             flash('Tarea pausada con éxito', 'success')
         else:
+            current_app.logger.error(f"Task not found: {task_id}")
             flash('Tarea no encontrada', 'danger')
     except SQLAlchemyError as e:
         db.session.rollback()
         current_app.logger.error(f"SQLAlchemy error pausing task: {str(e)}")
         flash(f'Error al pausar la tarea: {str(e)}', 'danger')
+    except ValueError as e:
+        current_app.logger.error(f"Invalid task_id: {task_id}")
+        flash('ID de tarea inválido', 'danger')
     return redirect(url_for('main.dashboard'))
 
 @bp.route('/resume_task', methods=['POST'])
@@ -399,20 +404,26 @@ def add_comment():
     comment = request.form.get('comment')
     
     if not task_id or not comment:
+        current_app.logger.error(f"Incomplete data: task_id={task_id}, comment={comment}")
         return jsonify({'success': False, 'message': 'Datos incompletos'}), 400
     
     try:
-        task = Task.query.get(task_id)
+        task = Task.query.get(int(task_id))
         if task:
             task.comment = comment
             db.session.commit()
+            current_app.logger.info(f"Comment added successfully to task {task_id}")
             return jsonify({'success': True, 'message': 'Comentario agregado con éxito'})
         else:
+            current_app.logger.error(f"Task not found: {task_id}")
             return jsonify({'success': False, 'message': 'Tarea no encontrada'}), 404
     except SQLAlchemyError as e:
         db.session.rollback()
         current_app.logger.error(f"Error adding comment: {str(e)}")
         return jsonify({'success': False, 'message': f'Error al agregar comentario: {str(e)}'}), 500
+    except ValueError as e:
+        current_app.logger.error(f"Invalid task_id: {task_id}")
+        return jsonify({'success': False, 'message': 'ID de tarea inválido'}), 400
 @bp.errorhandler(SQLAlchemyError)
 def handle_db_error(error):
     db.session.rollback()
