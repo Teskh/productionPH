@@ -27,7 +27,7 @@ def load_data():
 
 @bp.route('/')
 def index():
-    if 'user' in session and request.endpoint != 'main.dashboard':
+    if 'user' in session:
         return redirect(url_for('main.dashboard'))
     
     if 'line' not in session:
@@ -101,7 +101,7 @@ def dashboard():
         active_task = next((task for task in active_tasks if task.status == 'en proceso'), None)
         paused_tasks = [task for task in active_tasks if task.status == 'Paused']
         
-        welcome_message = "Bienvenida" if user['gender'] == 'F' else "Bienvenido"
+        welcome_message = "Bienvenida" if user.get('gender') == 'F' else "Bienvenido"
         
         return render_template('dashboard.html', user=user, active_task=active_task, paused_tasks=paused_tasks, welcome_message=welcome_message)
     except SQLAlchemyError as e:
