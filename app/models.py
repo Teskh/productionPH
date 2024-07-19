@@ -46,11 +46,6 @@ class Task(db.Model):
                 status='en proceso',
                 station_i=station_i,
                 line=line
-                activity=activity,
-                start_time=datetime.now(),
-                status='en proceso',
-                station_i=station_i,
-                line=line
             )
             db.session.add(new_task)
             db.session.commit()
