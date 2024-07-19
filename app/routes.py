@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, jsonify, flash
 from app.models import Task, SQLAlchemyError
 from app.utils import format_timestamp
-from data_manager import load_worker_data, load_project_data, load_activity_data
+from app.data_manager import load_worker_data, load_project_data, load_activity_data
 from app.database import db
 import uuid
 from collections import Counter
