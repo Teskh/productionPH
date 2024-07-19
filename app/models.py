@@ -32,19 +32,19 @@ class Task(db.Model):
         return next((task for task in tasks if task['status'] == 'en proceso'), None)
 
     @staticmethod
-    def add_task(task_data):
+    def add_task(worker_number, worker_name, project, house, module, activity, station_i, line):
         try:
             new_task = Task(
-                worker_number=task_data.get('worker_number', ''),
-                worker_name=task_data.get('user', ''),
-                project=task_data.get('project', ''),
-                house=task_data.get('house_number', ''),
-                module=task_data.get('n_modulo', ''),
-                activity=task_data.get('activity', ''),
+                worker_number=worker_number,
+                worker_name=worker_name,
+                project=project,
+                house=house,
+                module=module,
+                activity=activity,
                 start_time=datetime.now(),
                 status='en proceso',
-                station_i=task_data.get('station_i', ''),
-                line=task_data.get('line', '')
+                station_i=station_i,
+                line=line
             )
             db.session.add(new_task)
             db.session.commit()
