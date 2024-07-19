@@ -107,6 +107,7 @@ def dashboard():
     except SQLAlchemyError as e:
         db.session.rollback()
         flash(f'Error al cargar las tareas: {str(e)}', 'danger')
+        session.pop('user', None)  # Clear the user session on error
         return redirect(url_for('main.index'))
 
 @bp.route('/start_new_task', methods=['GET', 'POST'])
