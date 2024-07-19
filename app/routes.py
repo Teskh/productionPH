@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, jsonify, flash
+from flask import Blueprint, render_template, request, redirect, url_for, session, jsonify, flash, current_app
 from app.models import Task, SQLAlchemyError
 from app.utils import format_timestamp
 from app.data_manager import load_worker_data, load_project_data, load_activity_data
@@ -8,11 +8,17 @@ from collections import Counter
 
 bp = Blueprint('main', __name__)
 
-from flask import current_app
+supervisors = {}
+workers = {}
+projects = {}
+activities = {}
 
-supervisors, workers = load_worker_data(current_app.config['WORKER_DATA_PATH'])
-projects = load_project_data(current_app.config['PROJECT_DATA_PATH'])
-activities = load_activity_data(current_app.config['ACTIVITY_DATA_PATH'])
+@bp.before_app_first_request
+def load_data():
+    global supervisors, workers, projects, activities
+    supervisors, workers = load_worker_data(current_app.config['WORKER_DATA_PATH'])
+    projects = load_project_data(current_app.config['PROJECT_DATA_PATH'])
+    activities = load_activity_data(current_app.config['ACTIVITY_DATA_PATH'])
 
 @bp.route('/')
 def index():
