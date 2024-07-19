@@ -5,6 +5,7 @@ from app.data_manager import load_worker_data, load_project_data, load_activity_
 from app.database import db
 import uuid
 from collections import Counter
+import logging
 
 bp = Blueprint('main', __name__)
 
@@ -15,9 +16,14 @@ activities = {}
 
 def load_data():
     global supervisors, workers, projects, activities
-    supervisors, workers = load_worker_data(current_app.config['WORKER_DATA_PATH'])
-    projects = load_project_data(current_app.config['PROJECT_DATA_PATH'])
-    activities = load_activity_data(current_app.config['ACTIVITY_DATA_PATH'])
+    try:
+        supervisors, workers = load_worker_data(current_app.config['WORKER_DATA_PATH'])
+        projects = load_project_data(current_app.config['PROJECT_DATA_PATH'])
+        activities = load_activity_data(current_app.config['ACTIVITY_DATA_PATH'])
+        logging.info("Data loaded successfully")
+    except Exception as e:
+        logging.error(f"Error loading data: {str(e)}")
+        flash("Error al cargar los datos. Por favor, contacte al administrador.", "danger")
 
 @bp.route('/')
 def index():
