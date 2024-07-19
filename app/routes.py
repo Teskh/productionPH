@@ -265,7 +265,7 @@ def pause_task():
     
     timestamp = format_timestamp()
     try:
-        task = Task.query.get(int(task_id))
+        task = Task.query.get(task_id)
         if task:
             if str(task.worker_number) != str(session['user']['number']):
                 current_app.logger.error(f"Task {task_id} does not belong to the current user")
@@ -288,7 +288,7 @@ def pause_task():
     except ValueError as e:
         current_app.logger.error(f"Invalid task_id: {task_id}")
         flash('ID de tarea inválido', 'danger')
-    return redirect(url_for('main.dashboard'))
+    return jsonify({'success': True, 'message': 'Tarea pausada con éxito'})
 
 @bp.route('/resume_task', methods=['POST'])
 def resume_task():
