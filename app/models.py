@@ -16,6 +16,7 @@ class Task(db.Model):
     comment = db.Column(db.Text)
     station_i = db.Column(db.String(50))
     line = db.Column(db.String(50))
+    station_i = db.Column(db.String(50))
     station_f = db.Column(db.String(50))
 
     def __repr__(self):
