@@ -205,9 +205,6 @@ def start_new_task():
                 activity=activity,
                 station_i=session['station'],
                 line=session['line']
-                activity=activity,
-                station_i=session['station'],
-                line=session['line']
             )
             
             if new_task:
