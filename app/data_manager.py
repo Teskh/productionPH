@@ -31,8 +31,8 @@ def load_worker_data(worker_data_path):
     
     return dict(supervisors), workers
 
-def load_project_data():
-    df = load_excel_data(current_app.config['PROJECT_DATA_PATH'])
+def load_project_data(project_data_path):
+    df = load_excel_data(project_data_path)
     projects = {}
     
     for _, row in df.iterrows():
