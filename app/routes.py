@@ -296,11 +296,14 @@ def resume_task():
 @bp.route('/finish_task', methods=['POST'])
 def finish_task():
     if 'user' not in session:
+        current_app.logger.warning("User not in session, redirecting to index")
         return redirect(url_for('main.index'))
+    
     task_id = request.form.get('task_id')
     timestamp = format_timestamp()
     
     current_app.logger.debug(f"Attempting to finish task with ID: {task_id}")
+    current_app.logger.debug(f"Form data: {request.form}")
     
     try:
         # Get the task details
@@ -338,9 +341,6 @@ def finish_task():
     except Exception as e:
         current_app.logger.error(f"Unexpected error finishing task: {str(e)}")
         flash(f'Error inesperado al finalizar la tarea: {str(e)}', 'danger')
-    
-    # Add this line to log the task_id being sent from the form
-    current_app.logger.debug(f"Task ID received from form: {task_id}")
     
     return redirect(url_for('main.dashboard'))
 
