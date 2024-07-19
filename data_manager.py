@@ -1,20 +1,23 @@
-import openpyxl
-from collections import defaultdict
-import os
+from flask import current_app
 import pandas as pd
+from collections import defaultdict
 from app.models import Task
 from app.database import db
 from sqlalchemy.exc import SQLAlchemyError
 
-def load_worker_data(file_path='data/worker_data.xlsx'):
-    full_path = os.path.join(os.path.dirname(__file__), file_path)
-    wb = openpyxl.load_workbook(full_path)
-    sheet = wb.active
-    
+def load_excel_data(file_path):
+    try:
+        return pd.read_excel(file_path)
+    except Exception as e:
+        print(f"Error loading Excel file {file_path}: {str(e)}")
+        return pd.DataFrame()  # Return an empty DataFrame on error
+
+def load_worker_data():
+    df = load_excel_data(current_app.config['WORKER_DATA_PATH'])
     supervisors = defaultdict(list)
     workers = {}
     
-    for row in sheet.iter_rows(min_row=2, values_only=True):
+    for _, row in df.iterrows():
         supervisor, worker_name, worker_number, specialty, gender = row
         
         supervisors[supervisor].append(worker_name)
@@ -26,40 +29,29 @@ def load_worker_data(file_path='data/worker_data.xlsx'):
             'gender': gender
         }
     
-    # print("Loaded worker data:")
-    # print("Supervisors:", dict(supervisors))
-    # print("Workers:", workers)
     return dict(supervisors), workers
 
-def load_project_data(file_path='data/project_data.xlsx'):
-    full_path = os.path.join(os.path.dirname(__file__), file_path)
-    wb = openpyxl.load_workbook(full_path)
-    sheet = wb.active
-    
+def load_project_data():
+    df = load_excel_data(current_app.config['PROJECT_DATA_PATH'])
     projects = {}
     
-    for row in sheet.iter_rows(min_row=2, values_only=True):
+    for _, row in df.iterrows():
         project_name, total_houses, num_modulos = row
         projects[project_name] = {
             'total_houses': total_houses,
             'num_modulos': num_modulos
         }
     
-    # print("Loaded project data:", projects)
     return projects
 
-def load_activity_data(file_path='data/activity_data.xlsx'):
-    full_path = os.path.join(os.path.dirname(__file__), file_path)
-    wb = openpyxl.load_workbook(full_path)
-    sheet = wb.active
-    
+def load_activity_data():
+    df = load_excel_data(current_app.config['ACTIVITY_DATA_PATH'])
     activities = defaultdict(list)
     
-    for row in sheet.iter_rows(min_row=2, values_only=True):
+    for _, row in df.iterrows():
         specialty, activity = row
         activities[specialty.upper()].append(activity)
     
-    # print("Loaded activity data:", dict(activities))
     return dict(activities)
 
 def get_active_tasks():
