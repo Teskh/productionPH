@@ -91,12 +91,12 @@ class Task(db.Model):
 
     @staticmethod
     def get_related_active_tasks(project, house_number, n_modulo, activity):
-        return Task.query.filter_by(
-            project=project,
-            house=house_number,
-            module=n_modulo,
-            activity=activity,
-            status='en proceso'
+        return Task.query.filter(
+            Task.project == project,
+            Task.house == house_number,
+            Task.module == n_modulo,
+            Task.activity == activity,
+            Task.status.in_(['en proceso', 'Paused'])
         ).all()
 
     @staticmethod
@@ -121,6 +121,24 @@ class Task(db.Model):
             db.session.rollback()
             print(f"Error finishing related tasks: {str(e)}")
             return False
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'worker_number': self.worker_number,
+            'worker_name': self.worker_name,
+            'project': self.project,
+            'house': self.house,
+            'module': self.module,
+            'activity': self.activity,
+            'start_time': self.start_time,
+            'end_time': self.end_time,
+            'status': self.status,
+            'comment': self.comment,
+            'station_i': self.station_i,
+            'line': self.line,
+            'station_f': self.station_f
+        }
 
     @staticmethod
     def get_task_by_id(task_id):

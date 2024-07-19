@@ -118,6 +118,9 @@ def dashboard():
         
         welcome_message = "Bienvenida" if user.get('gender') == 'F' else "Bienvenido"
         
+        current_app.logger.debug(f"Active task: {active_task}")
+        current_app.logger.debug(f"Paused tasks: {paused_tasks}")
+        
         current_app.logger.debug("Rendering dashboard template")
         return render_template('dashboard.html', user=user, active_task=active_task, paused_tasks=paused_tasks, welcome_message=welcome_message)
     except SQLAlchemyError as e:
@@ -304,8 +307,12 @@ def finish_task():
             flash('Tarea no encontrada', 'danger')
             return redirect(url_for('main.dashboard'))
         
+        current_app.logger.debug(f"Finishing task: {task}")
+        
         # Check for related active tasks
         related_tasks = Task.get_related_active_tasks(task.project, task.house, task.module, task.activity)
+        
+        current_app.logger.debug(f"Related tasks: {related_tasks}")
         
         # If there are other active related tasks, don't allow finishing
         if len(related_tasks) > 1:  # > 1 because it includes the current task
@@ -317,6 +324,7 @@ def finish_task():
         flash('Tarea finalizada con éxito para todos los usuarios relacionados', 'success')
     except SQLAlchemyError as e:
         db.session.rollback()
+        current_app.logger.error(f"Error finishing task: {str(e)}")
         flash(f'Error al finalizar la tarea: {str(e)}', 'danger')
     return redirect(url_for('main.dashboard'))
 
