@@ -148,3 +148,4 @@ if __name__ == "__main__":
 # Activity, Project, and Worker data are still stored in Excel files
 # Use Task.query... for task-related operations
 # Use pd.read_excel() for activity, project, and worker data
+# This file should be moved to the app directory
