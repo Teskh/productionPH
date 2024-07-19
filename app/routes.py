@@ -304,16 +304,23 @@ def finish_task():
     
     current_app.logger.debug(f"Attempting to finish task with ID: {task_id}")
     current_app.logger.debug(f"Form data: {request.form}")
+    current_app.logger.debug(f"Session data: {session}")
     
     try:
         # Get the task details
         task = Task.get_task_by_id(task_id)
         if not task:
-            current_app.logger.error(f"Task with ID {task_id} not found")
-            flash('Tarea no encontrada', 'danger')
+            current_app.logger.error(f"Task with ID {task_id} not found in the database")
+            flash('Tarea no encontrada en la base de datos', 'danger')
             return redirect(url_for('main.dashboard'))
         
-        current_app.logger.debug(f"Finishing task: {task.to_dict()}")
+        current_app.logger.debug(f"Task found: {task.to_dict()}")
+        
+        # Check if the task belongs to the current user
+        if task.worker_number != session['user']['number']:
+            current_app.logger.error(f"Task {task_id} does not belong to the current user")
+            flash('Esta tarea no pertenece al usuario actual', 'danger')
+            return redirect(url_for('main.dashboard'))
         
         # Check for related active tasks
         related_tasks = Task.get_related_active_tasks(task.project, task.house, task.module, task.activity)
