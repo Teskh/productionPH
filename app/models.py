@@ -17,6 +17,7 @@ class Task(db.Model):
     station_i = db.Column(db.String(50))
     line = db.Column(db.String(50))
     station_f = db.Column(db.String(50))
+    station_f = db.Column(db.String(50))
 
     def __repr__(self):
         return f'<Task {self.id} - {self.worker_name} - {self.activity}>'
