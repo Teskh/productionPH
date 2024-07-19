@@ -1,12 +1,30 @@
 import os
 
+basedir = os.path.abspath(os.path.dirname(__file__))
+
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY') or 'your-secret-key-here'
-    EXCEL_FILE = os.path.join(os.path.dirname(__file__), 'data', 'production_data.xlsx')
-    EXCEL_LOCK_FILE = os.path.join(os.path.dirname(__file__), 'data', 'production_data.xlsx.lock')
-    WORKER_DATA_FILE = os.path.join(os.path.dirname(__file__), 'data', 'worker_data.xlsx')
-    PROJECT_DATA_FILE = os.path.join(os.path.dirname(__file__), 'data', 'project_data.xlsx')
-    ACTIVITY_DATA_FILE = os.path.join(os.path.dirname(__file__), 'data', 'activity_data.xlsx')
-    DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///production_data.db'
+    SECRET_KEY = 'your-secret-key'  # Replace with a secure secret key
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'production_data.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    
+    # Excel file paths
+    ACTIVITY_DATA_PATH = os.path.join(basedir, 'data', 'activity_data.xlsx')
+    PROJECT_DATA_PATH = os.path.join(basedir, 'data', 'project_data.xlsx')
+    WORKER_DATA_PATH = os.path.join(basedir, 'data', 'worker_data.xlsx')
+
+class DevelopmentConfig(Config):
+    DEBUG = True
+
+class ProductionConfig(Config):
+    DEBUG = False
+
+class TestConfig(Config):
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+
+config = {
+    'development': DevelopmentConfig,
+    'production': ProductionConfig,
+    'testing': TestConfig,
+    'default': DevelopmentConfig
+}
