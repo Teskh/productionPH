@@ -27,7 +27,7 @@ def load_data():
 
 @bp.route('/')
 def index():
-    if 'user' in session:
+    if 'user' in session and request.endpoint != 'main.dashboard':
         return redirect(url_for('main.dashboard'))
     
     if 'line' not in session:
