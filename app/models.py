@@ -14,6 +14,7 @@ class Task(db.Model):
     end_time = db.Column(db.DateTime)
     status = db.Column(db.String(20), nullable=False)
     comment = db.Column(db.Text)
+    comment = db.Column(db.Text)
 
     def __repr__(self):
         return f'<Task {self.id} - {self.worker_name} - {self.activity}>'
