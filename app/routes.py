@@ -265,18 +265,18 @@ def pause_task():
     
     timestamp = format_timestamp()
     try:
-        task = Task.get_task_by_id(task_id)
+        task = Task.query.get(task_id)
         if task:
             if str(task.worker_number) != str(session['user']['number']):
                 current_app.logger.error(f"Task {task_id} does not belong to the current user")
                 flash('Esta tarea no pertenece al usuario actual', 'danger')
                 return redirect(url_for('main.dashboard'))
             
-            updated_task = Task.update_task(task_id, 'Paused', timestamp, pause_reason)
-            if updated_task:
-                flash('Tarea pausada con éxito', 'success')
-            else:
-                flash('Error al pausar la tarea', 'danger')
+            task.status = 'Paused'
+            task.pause_reason = pause_reason
+            task.pause_time = timestamp
+            db.session.commit()
+            flash('Tarea pausada con éxito', 'success')
         else:
             flash('Tarea no encontrada', 'danger')
     except SQLAlchemyError as e:
@@ -402,10 +402,16 @@ def add_comment():
         return jsonify({'success': False, 'message': 'Datos incompletos'}), 400
     
     try:
-        Task.add_comment(task_id, comment)
-        return jsonify({'success': True, 'message': 'Comentario agregado con éxito'})
+        task = Task.query.get(task_id)
+        if task:
+            task.comment = comment
+            db.session.commit()
+            return jsonify({'success': True, 'message': 'Comentario agregado con éxito'})
+        else:
+            return jsonify({'success': False, 'message': 'Tarea no encontrada'}), 404
     except SQLAlchemyError as e:
         db.session.rollback()
+        current_app.logger.error(f"Error adding comment: {str(e)}")
         return jsonify({'success': False, 'message': f'Error al agregar comentario: {str(e)}'}), 500
 @bp.errorhandler(SQLAlchemyError)
 def handle_db_error(error):
