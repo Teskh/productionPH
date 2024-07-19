@@ -8,3 +8,5 @@ class Config:
     PROJECT_DATA_FILE = os.path.join(os.path.dirname(__file__), 'data', 'project_data.xlsx')
     ACTIVITY_DATA_FILE = os.path.join(os.path.dirname(__file__), 'data', 'activity_data.xlsx')
     DEBUG = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///production_data.db'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False

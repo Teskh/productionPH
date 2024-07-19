@@ -3,11 +3,26 @@ from filelock import FileLock
 import openpyxl
 from datetime import datetime
 import os
+from .database import db
 
 EXCEL_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'production_data.xlsx')
 EXCEL_LOCK_FILE = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'data', 'production_data.xlsx.lock')
 
-class Task:
+class Task(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    worker_number = db.Column(db.String(50), nullable=False)
+    worker_name = db.Column(db.String(100), nullable=False)
+    project = db.Column(db.String(100), nullable=False)
+    house = db.Column(db.String(50), nullable=False)
+    module = db.Column(db.String(50), nullable=False)
+    activity = db.Column(db.String(100), nullable=False)
+    start_time = db.Column(db.DateTime, nullable=False)
+    end_time = db.Column(db.DateTime)
+    status = db.Column(db.String(20), nullable=False)
+    comment = db.Column(db.Text)
+
+    def __repr__(self):
+        return f'<Task {self.id} - {self.worker_name} - {self.activity}>'
     @staticmethod
     def get_active_tasks(worker_number):
         lock = FileLock(EXCEL_LOCK_FILE)

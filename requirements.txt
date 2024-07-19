@@ -2,3 +2,5 @@ APScheduler==3.10.1
 Flask==2.3.2
 openpyxl==3.1.2
 filelock==3.12.2
+SQLAlchemy==1.4.46
+Flask-SQLAlchemy==3.0.3
