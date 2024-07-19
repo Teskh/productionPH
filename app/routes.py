@@ -306,6 +306,11 @@ def finish_task():
     current_app.logger.debug(f"Form data: {request.form}")
     current_app.logger.debug(f"Session data: {session}")
     
+    if not task_id:
+        current_app.logger.error("No task_id provided in the form data")
+        flash('No se proporcionó un ID de tarea válido', 'danger')
+        return redirect(url_for('main.dashboard'))
+    
     try:
         # Get the task details
         task = Task.get_task_by_id(task_id)
