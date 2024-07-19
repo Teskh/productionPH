@@ -65,7 +65,7 @@
                                 <img src="{{ url_for('static', filename='images/comment.png') }}" alt="Comentar" class="comment-icon">
                             </button>
                             <button class="btn btn-warning btn-sm action-button text-white rounded" onclick="showPauseOptions('{{ active_task.task_id }}')">Pausar</button>
-                            <button class="btn btn-primary btn-sm action-button text-white rounded" onclick="finishTask('{{ active_task.task_id }}')">Finalizar</button>
+                            <button class="btn btn-primary btn-sm action-button text-white rounded" onclick="finishTask('{{ active_task.id }}')">Finalizar</button>
                         </div>
                     </td>
                 </tr>
@@ -305,7 +305,9 @@
     }
 
     function finishTask(taskId) {
+        console.log('Attempting to finish task with ID:', taskId);
         if (!taskId) {
+            console.error('Error: No task ID provided');
             alert('Error: No se pudo obtener el ID de la tarea. Por favor, recargue la página e intente nuevamente.');
             return;
         }
@@ -317,6 +319,7 @@
         input.name = 'task_id';
         input.value = taskId;
         form.appendChild(input);
+        console.log('Form created with task ID:', taskId);
         document.body.appendChild(form);
         form.submit();
     }
