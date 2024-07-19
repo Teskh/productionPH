@@ -18,6 +18,10 @@ def init_database():
             db.engine.execute('ALTER TABLE task ADD COLUMN station_f VARCHAR(50)')
             print("Added station_f column to task table.")
 
+        if 'line' not in existing_column_names:
+            db.engine.execute('ALTER TABLE task ADD COLUMN line VARCHAR(50)')
+            print("Added line column to task table.")
+
         db.create_all()  # This will create any new tables if needed
         print("Database schema updated.")
 
