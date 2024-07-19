@@ -1,7 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, jsonify, flash
-from app.models import Task
-from app.utils import format_timestamp, init_excel_file
+from app.models import Task, SQLAlchemyError
+from app.utils import format_timestamp
 from data_manager import load_worker_data, load_project_data, load_activity_data
+from app.database import db
 import uuid
 from collections import Counter
 
@@ -81,14 +82,19 @@ def dashboard():
     else:
         user['name'] = ' '.join(word.capitalize() for word in user['name'].split())
     
-    active_tasks = Task.get_active_tasks(user['number'])
-    
-    active_task = next((task for task in active_tasks if task['status'] == 'en proceso'), None)
-    paused_tasks = [task for task in active_tasks if task['status'] == 'Paused']
-    
-    welcome_message = "Bienvenida" if user['gender'] == 'F' else "Bienvenido"
-    
-    return render_template('dashboard.html', user=user, active_task=active_task, paused_tasks=paused_tasks, welcome_message=welcome_message)
+    try:
+        active_tasks = Task.get_active_tasks(user['number'])
+        
+        active_task = next((task for task in active_tasks if task.status == 'en proceso'), None)
+        paused_tasks = [task for task in active_tasks if task.status == 'Paused']
+        
+        welcome_message = "Bienvenida" if user['gender'] == 'F' else "Bienvenido"
+        
+        return render_template('dashboard.html', user=user, active_task=active_task, paused_tasks=paused_tasks, welcome_message=welcome_message)
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        flash(f'Error al cargar las tareas: {str(e)}', 'danger')
+        return redirect(url_for('main.index'))
 
 @bp.route('/start_new_task', methods=['GET', 'POST'])
 def start_new_task():
@@ -96,114 +102,113 @@ def start_new_task():
         return redirect(url_for('main.index'))
     user = session['user']
     
-    active_tasks = Task.get_active_tasks(user['number'])
-    if any(task['status'] == 'en proceso' for task in active_tasks):
-        flash('Ya tiene una tarea activa. Por favor, finalícela o páusela antes de iniciar una nueva.', 'warning')
-        return redirect(url_for('main.dashboard'))
-    
-    projects_data = {project: projects[project] for project in projects}
-    
-    projects_data = {project: projects[project] for project in projects}
-    
-    # Get the most frequent tasks for the user
-    user_tasks = Task.get_user_tasks(user['number'])
-    task_counter = Counter(task['activity'] for task in user_tasks)
-    frequent_tasks = [task for task, count in task_counter.most_common(3) if count >= 2]
+    try:
+        active_tasks = Task.get_active_tasks(user['number'])
+        if any(task.status == 'en proceso' for task in active_tasks):
+            flash('Ya tiene una tarea activa. Por favor, finalícela o páusela antes de iniciar una nueva.', 'warning')
+            return redirect(url_for('main.dashboard'))
+        
+        projects_data = {project: projects[project] for project in projects}
+        
+        # Get the most frequent tasks for the user
+        user_tasks = Task.get_user_tasks(user['number'])
+        task_counter = Counter(task.activity for task in user_tasks)
+        frequent_tasks = [task for task, count in task_counter.most_common(3) if count >= 2]
 
-    if request.method == 'POST':
-        project = request.form['project']
-        house_number = request.form['house_number']
-        n_modulo = request.form['n_modulo']
-        activity = request.form['activity']
+        if request.method == 'POST':
+            project = request.form['project']
+            house_number = request.form['house_number']
+            n_modulo = request.form['n_modulo']
+            activity = request.form['activity']
+            
+            # Check for existing active tasks
+            existing_task = next((task for task in active_tasks if 
+                                  task.worker_name == user['name'] and
+                                  task.activity == activity and
+                                  task.project == project and
+                                  str(task.house) == str(house_number) and
+                                  str(task.module) == str(n_modulo)), None)
+            
+            if existing_task:
+                flash('Ya iniciaste esta tarea para este módulo', 'warning')
+                return render_template('start_new_task.html', 
+                                       user=user, 
+                                       projects=projects_data, 
+                                       activities=activities,
+                                       user_specialty=user['specialty'],
+                                       line=session.get('line', 'L1'),
+                                       station_i=session.get('station', 1),
+                                       last_project=project,
+                                       last_house_number=house_number,
+                                       last_n_modulo=n_modulo,
+                                       frequent_tasks=frequent_tasks,
+                                       num_modulos=projects_data[project]['num_modulos'])
+            
+            # Check for finished tasks
+            finished_task = Task.get_finished_task(project, house_number, n_modulo, activity)
+            if finished_task:
+                flash('Esta tarea ya ha sido realizada para este módulo', 'warning')
+                return render_template('start_new_task.html', 
+                                       user=user, 
+                                       projects=projects_data, 
+                                       activities=activities,
+                                       user_specialty=user['specialty'],
+                                       line=session.get('line', 'L1'),
+                                       station_i=session.get('station', 1),
+                                       last_project=project,
+                                       last_house_number=house_number,
+                                       last_n_modulo=n_modulo,
+                                       frequent_tasks=frequent_tasks,
+                                       num_modulos=projects_data[project]['num_modulos'])
+            
+            session['last_project'] = project
+            session['last_house_number'] = house_number
+            session['last_n_modulo'] = n_modulo
+            
+            new_task = Task.add_task(
+                worker_number=user['number'],
+                worker_name=user['name'],
+                project=project,
+                house=house_number,
+                module=n_modulo,
+                activity=activity,
+                station_i=session['station'],
+                line=session['line']
+            )
+            
+            if new_task:
+                flash('Nueva tarea iniciada con éxito', 'success')
+                return redirect(url_for('main.dashboard'))
+            else:
+                flash('Error al iniciar la tarea', 'danger')
         
-        # Check for existing active tasks
-        existing_task = next((task for task in active_tasks if 
-                              task['user'] == user['name'] and
-                              task['activity'] == activity and
-                              task['project'] == project and
-                              str(task['house_number']) == str(house_number) and
-                              str(task['n_modulo']) == str(n_modulo)), None)
+        last_project = session.get('last_project', '')
+        last_house_number = session.get('last_house_number', '')
+        last_n_modulo = session.get('last_n_modulo', '')
         
-        if existing_task:
-            flash('Ya iniciaste esta tarea para este módulo', 'warning')
-            return render_template('start_new_task.html', 
-                                   user=user, 
-                                   projects=projects_data, 
-                                   activities=activities,
-                                   user_specialty=user['specialty'],
-                                   line=session.get('line', 'L1'),
-                                   station_i=session.get('station', 1),
-                                   last_project=project,
-                                   last_house_number=house_number,
-                                   last_n_modulo=n_modulo,
-                                   frequent_tasks=frequent_tasks,
-                                   num_modulos=projects_data[project]['num_modulos'])
+        all_activities = [activity for specialty_activities in activities.values() for activity in specialty_activities]
+        user_activities = activities.get(user['specialty'], [])
+        other_activities = list(set(all_activities) - set(user_activities))
         
-        # Check for finished tasks
-        finished_task = Task.get_finished_task(project, house_number, n_modulo, activity)
-        if finished_task:
-            flash('Esta tarea ya ha sido realizada para este módulo', 'warning')
-            return render_template('start_new_task.html', 
-                                   user=user, 
-                                   projects=projects_data, 
-                                   activities=activities,
-                                   user_specialty=user['specialty'],
-                                   line=session.get('line', 'L1'),
-                                   station_i=session.get('station', 1),
-                                   last_project=project,
-                                   last_house_number=house_number,
-                                   last_n_modulo=n_modulo,
-                                   frequent_tasks=frequent_tasks,
-                                   num_modulos=projects_data[project]['num_modulos'])
+        # Get the number of modules for the last selected project
+        num_modulos = projects_data.get(last_project, {}).get('num_modulos', 1) if last_project else 1
         
-        session['last_project'] = project
-        session['last_house_number'] = house_number
-        session['last_n_modulo'] = n_modulo
-        
-        task_data = {
-            'task_id': str(uuid.uuid4()),
-            'worker_number': user['number'],
-            'supervisor': user['supervisor'],
-            'user': user['name'],
-            'specialty': user['specialty'],
-            'project': project,
-            'house_number': house_number,
-            'n_modulo': n_modulo,
-            'activity': activity,
-            'status': 'en proceso',
-            'station_i': session['station'],
-            'station_f': '',  # Initially empty
-            'line': session['line']
-        }
-        
-        Task.add_task(task_data)
-        flash('Nueva tarea iniciada con éxito', 'success')
-        
+        return render_template('start_new_task.html', 
+                               user=user, 
+                               projects=projects_data, 
+                               activities=activities,
+                               user_specialty=user['specialty'],
+                               line=session.get('line', 'L1'),
+                               station_i=session.get('station', 1),
+                               last_project=last_project,
+                               last_house_number=last_house_number,
+                               last_n_modulo=last_n_modulo,
+                               frequent_tasks=frequent_tasks,
+                               num_modulos=num_modulos)
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        flash(f'Error al iniciar la tarea: {str(e)}', 'danger')
         return redirect(url_for('main.dashboard'))
-    
-    last_project = session.get('last_project', '')
-    last_house_number = session.get('last_house_number', '')
-    last_n_modulo = session.get('last_n_modulo', '')
-    
-    all_activities = [activity for specialty_activities in activities.values() for activity in specialty_activities]
-    user_activities = activities.get(user['specialty'], [])
-    other_activities = list(set(all_activities) - set(user_activities))
-    
-    # Get the number of modules for the last selected project
-    num_modulos = projects_data.get(last_project, {}).get('num_modulos', 1) if last_project else 1
-    
-    return render_template('start_new_task.html', 
-                           user=user, 
-                           projects=projects_data, 
-                           activities=activities,
-                           user_specialty=user['specialty'],
-                           line=session.get('line', 'L1'),
-                           station_i=session.get('station', 1),
-                           last_project=last_project,
-                           last_house_number=last_house_number,
-                           last_n_modulo=last_n_modulo,
-                           frequent_tasks=frequent_tasks,
-                           num_modulos=num_modulos)
 
 @bp.route('/pause_task', methods=['POST'])
 def pause_task():
@@ -228,7 +233,8 @@ def pause_task():
     try:
         Task.update_task(task_id, 'Paused', timestamp, pause_reason)
         flash('Tarea pausada con éxito', 'success')
-    except Exception as e:
+    except SQLAlchemyError as e:
+        db.session.rollback()
         flash(f'Error al pausar la tarea: {str(e)}', 'danger')
     return redirect(url_for('main.dashboard'))
 
@@ -239,16 +245,17 @@ def resume_task():
     user = session['user']
     task_id = request.form.get('task_id')
     
-    active_task = Task.get_active_task(user['number'])
-    if active_task:
-        flash('Ya tiene una tarea activa. Por favor, finalícela o páusela antes de reanudar otra.', 'error')
-        return redirect(url_for('main.dashboard'))
-    
-    timestamp = format_timestamp()
     try:
+        active_task = Task.get_active_task(user['number'])
+        if active_task:
+            flash('Ya tiene una tarea activa. Por favor, finalícela o páusela antes de reanudar otra.', 'error')
+            return redirect(url_for('main.dashboard'))
+        
+        timestamp = format_timestamp()
         Task.update_task(task_id, 'en proceso', timestamp)
         flash('Tarea reanudada con éxito', 'success')
-    except Exception as e:
+    except SQLAlchemyError as e:
+        db.session.rollback()
         flash(f'Error al reanudar la tarea: {str(e)}', 'danger')
     return redirect(url_for('main.dashboard'))
 
@@ -259,25 +266,26 @@ def finish_task():
     task_id = request.form.get('task_id')
     timestamp = format_timestamp()
     
-    # Get the task details
-    task = Task.get_task_by_id(task_id)
-    if not task:
-        flash('Tarea no encontrada', 'danger')
-        return redirect(url_for('main.dashboard'))
-    
-    # Check for related active tasks
-    related_tasks = Task.get_related_active_tasks(task['project'], task['house_number'], task['n_modulo'], task['activity'])
-    
-    # If there are other active related tasks, don't allow finishing
-    if len(related_tasks) > 1:  # > 1 because it includes the current task
-        flash('No se puede finalizar la tarea porque otros usuarios tienen la misma tarea activa', 'warning')
-        return redirect(url_for('main.dashboard'))
-    
     try:
+        # Get the task details
+        task = Task.get_task_by_id(task_id)
+        if not task:
+            flash('Tarea no encontrada', 'danger')
+            return redirect(url_for('main.dashboard'))
+        
+        # Check for related active tasks
+        related_tasks = Task.get_related_active_tasks(task.project, task.house, task.module, task.activity)
+        
+        # If there are other active related tasks, don't allow finishing
+        if len(related_tasks) > 1:  # > 1 because it includes the current task
+            flash('No se puede finalizar la tarea porque otros usuarios tienen la misma tarea activa', 'warning')
+            return redirect(url_for('main.dashboard'))
+        
         # Finish the task for all related users (including paused tasks)
-        Task.finish_related_tasks(task['project'], task['house_number'], task['n_modulo'], task['activity'], timestamp, session['station'])
+        Task.finish_related_tasks(task.project, task.house, task.module, task.activity, timestamp, session['station'])
         flash('Tarea finalizada con éxito para todos los usuarios relacionados', 'success')
-    except Exception as e:
+    except SQLAlchemyError as e:
+        db.session.rollback()
         flash(f'Error al finalizar la tarea: {str(e)}', 'danger')
     return redirect(url_for('main.dashboard'))
 
@@ -314,5 +322,12 @@ def add_comment():
     try:
         Task.add_comment(task_id, comment)
         return jsonify({'success': True, 'message': 'Comentario agregado con éxito'})
-    except Exception as e:
+    except SQLAlchemyError as e:
+        db.session.rollback()
         return jsonify({'success': False, 'message': f'Error al agregar comentario: {str(e)}'}), 500
+@bp.errorhandler(SQLAlchemyError)
+def handle_db_error(error):
+    db.session.rollback()
+    # Log the error
+    print(f"Database error occurred: {str(error)}")
+    return "An error occurred with the database. Please try again later.", 500
