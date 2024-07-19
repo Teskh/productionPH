@@ -313,7 +313,7 @@ def finish_task():
             return redirect(url_for('main.dashboard'))
         
         # Finish the task for all related users (including paused tasks)
-        Task.finish_related_tasks(task.project, task.house, task.module, task.activity, timestamp, session['station'])
+        Task.finish_related_tasks(task.project, task.house, task.module, task.activity, timestamp, session.get('station'))
         flash('Tarea finalizada con éxito para todos los usuarios relacionados', 'success')
     except SQLAlchemyError as e:
         db.session.rollback()
