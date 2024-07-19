@@ -1,29 +1,58 @@
 from datetime import datetime
-import openpyxl
-import os
-
-EXCEL_FILE = 'data/production_data.xlsx'
-EXPECTED_COLUMNS = [
-    'Task ID', 'Start Timestamp', 'Worker Number', 'Supervisor', 'User', 'Specialty', 'Project', 
-    'House Number', 'Nº modulo', 'Activity', 'Status', 'Station_i', 'Station_f', 'Line',
-    'Pause 1 Timestamp', 'Pause 1 Reason', 'Resume 1 Timestamp',
-    'Pause 2 Timestamp', 'Pause 2 Reason', 'Resume 2 Timestamp',
-    'End Timestamp'
-]
+from app.models import Task
+from app.database import db
+import pandas as pd
+from sqlalchemy.exc import SQLAlchemyError
+import time
 
 def format_timestamp():
     return datetime.now().strftime('%Y-%m-%d %H:%M')
 
-def init_excel_file():
-    if not os.path.exists(EXCEL_FILE):
-        wb = openpyxl.Workbook()
-        ws = wb.active
-        ws.append(EXPECTED_COLUMNS)
-    else:
-        wb = openpyxl.load_workbook(EXCEL_FILE)
-        ws = wb.active
-        if ws[1][0].value != EXPECTED_COLUMNS[0] or len(ws[1]) < len(EXPECTED_COLUMNS):
-            for col, header in enumerate(EXPECTED_COLUMNS, start=1):
-                if col > len(ws[1]) or ws.cell(row=1, column=col).value != header:
-                    ws.cell(row=1, column=col, value=header)
-    wb.save(EXCEL_FILE)
+def get_task_summary(start_date, end_date):
+    try:
+        tasks = Task.query.filter(
+            Task.start_time >= start_date,
+            Task.start_time <= end_date
+        ).all()
+        
+        summary = pd.DataFrame([
+            {
+                'worker_name': task.worker_name,
+                'project': task.project,
+                'activity': task.activity,
+                'duration': (task.end_time - task.start_time).total_seconds() / 3600  # hours
+            } for task in tasks if task.end_time
+        ])
+        
+        return summary.groupby(['worker_name', 'project', 'activity']).sum().reset_index()
+    except SQLAlchemyError as e:
+        print(f"Error generating task summary: {str(e)}")
+        return pd.DataFrame()
+
+def get_project_progress(project_name):
+    try:
+        total_tasks = Task.query.filter_by(project=project_name).count()
+        completed_tasks = Task.query.filter_by(project=project_name, status='Finished').count()
+        return (completed_tasks / total_tasks) * 100 if total_tasks > 0 else 0
+    except SQLAlchemyError as e:
+        print(f"Error calculating project progress: {str(e)}")
+        return 0
+
+def safe_db_operation(operation):
+    try:
+        result = operation()
+        db.session.commit()
+        return result
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        print(f"Database error: {str(e)}")
+        return None
+
+def measure_execution_time(func):
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        print(f"{func.__name__} executed in {end_time - start_time:.2f} seconds")
+        return result
+    return wrapper

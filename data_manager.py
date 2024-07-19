@@ -79,27 +79,35 @@ def get_finished_tasks(start_date, end_date):
         print(f"Error retrieving finished tasks: {str(e)}")
         return []
 
-def sync_task_data_to_excel(filename):
+def export_data(start_date, end_date, filename):
     try:
-        tasks = Task.query.all()
-        df = pd.DataFrame([
+        tasks = Task.query.filter(
+            Task.start_time >= start_date,
+            Task.start_time <= end_date
+        ).all()
+        
+        task_data = pd.DataFrame([
             {
-                'worker_number': task.worker_number,
                 'worker_name': task.worker_name,
                 'project': task.project,
-                'house': task.house,
-                'module': task.module,
                 'activity': task.activity,
                 'start_time': task.start_time,
                 'end_time': task.end_time,
-                'status': task.status,
-                'comment': task.comment
+                'status': task.status
             } for task in tasks
         ])
-        df.to_excel(filename, index=False)
-        print(f"Task data synced to {filename}")
+        
+        activity_data = pd.read_excel(current_app.config['ACTIVITY_DATA_PATH'])
+        project_data = pd.read_excel(current_app.config['PROJECT_DATA_PATH'])
+        
+        with pd.ExcelWriter(filename) as writer:
+            task_data.to_excel(writer, sheet_name='Tasks', index=False)
+            activity_data.to_excel(writer, sheet_name='Activities', index=False)
+            project_data.to_excel(writer, sheet_name='Projects', index=False)
+        
+        print(f"Data exported to {filename}")
     except Exception as e:
-        print(f"Error syncing task data to Excel: {str(e)}")
+        print(f"Error exporting data: {str(e)}")
 
 def get_task_statistics():
     try:
@@ -135,3 +143,8 @@ if __name__ == "__main__":
     activities = load_activity_data()
     print("Active tasks:", get_active_tasks())
     print("Task statistics:", get_task_statistics())
+
+# Task data is now stored in SQLite database
+# Activity, Project, and Worker data are still stored in Excel files
+# Use Task.query... for task-related operations
+# Use pd.read_excel() for activity, project, and worker data
