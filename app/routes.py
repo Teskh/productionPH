@@ -320,10 +320,12 @@ def finish_task():
             return redirect(url_for('main.dashboard'))
         
         current_app.logger.debug(f"Task found: {task.to_dict()}")
+        current_app.logger.debug(f"Session user: {session['user']}")
         
         # Check if the task belongs to the current user
-        if task.worker_number != session['user']['number']:
+        if str(task.worker_number) != str(session['user']['number']):
             current_app.logger.error(f"Task {task_id} does not belong to the current user")
+            current_app.logger.debug(f"Task worker number: {task.worker_number}, Session user number: {session['user']['number']}")
             flash('Esta tarea no pertenece al usuario actual', 'danger')
             return redirect(url_for('main.dashboard'))
         
