@@ -97,9 +97,12 @@ def submit():
 
 @bp.route('/dashboard')
 def dashboard():
+    current_app.logger.debug("Dashboard route called")
     if 'user' not in session:
+        current_app.logger.debug("User not in session, redirecting to index")
         return redirect(url_for('main.index'))
     user = session['user']
+    current_app.logger.debug(f"User in session: {user}")
     
     if 'name' not in user:
         user['name'] = 'Usuario'
@@ -108,14 +111,17 @@ def dashboard():
     
     try:
         active_tasks = Task.get_active_tasks(user['number'])
+        current_app.logger.debug(f"Active tasks: {active_tasks}")
         
         active_task = next((task for task in active_tasks if task.status == 'en proceso'), None)
         paused_tasks = [task for task in active_tasks if task.status == 'Paused']
         
         welcome_message = "Bienvenida" if user.get('gender') == 'F' else "Bienvenido"
         
+        current_app.logger.debug("Rendering dashboard template")
         return render_template('dashboard.html', user=user, active_task=active_task, paused_tasks=paused_tasks, welcome_message=welcome_message)
     except SQLAlchemyError as e:
+        current_app.logger.error(f"SQLAlchemy error in dashboard: {str(e)}")
         db.session.rollback()
         flash(f'Error al cargar las tareas: {str(e)}', 'danger')
         session.pop('user', None)  # Clear the user session on error
