@@ -13,7 +13,6 @@ workers = {}
 projects = {}
 activities = {}
 
-@bp.before_app_first_request
 def load_data():
     global supervisors, workers, projects, activities
     supervisors, workers = load_worker_data(current_app.config['WORKER_DATA_PATH'])
