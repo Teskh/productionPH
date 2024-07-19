@@ -151,7 +151,13 @@ class Task(db.Model):
 
     @staticmethod
     def get_task_by_id(task_id):
-        return Task.query.get(task_id)
+        from flask import current_app
+        task = Task.query.get(task_id)
+        if task:
+            current_app.logger.debug(f"Task found: {task.to_dict()}")
+        else:
+            current_app.logger.error(f"No task found with ID: {task_id}")
+        return task
 
     @staticmethod
     def add_comment(task_id, comment):

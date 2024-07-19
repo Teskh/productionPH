@@ -338,6 +338,10 @@ def finish_task():
     except Exception as e:
         current_app.logger.error(f"Unexpected error finishing task: {str(e)}")
         flash(f'Error inesperado al finalizar la tarea: {str(e)}', 'danger')
+    
+    # Add this line to log the task_id being sent from the form
+    current_app.logger.debug(f"Task ID received from form: {task_id}")
+    
     return redirect(url_for('main.dashboard'))
 
 @bp.route('/get_project_details/<project>')
