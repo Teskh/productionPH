@@ -247,61 +247,78 @@ def start_new_task():
 @bp.route('/pause_task', methods=['POST'])
 def pause_task():
     if 'user' not in session:
+        current_app.logger.warning("User not in session, returning unauthorized")
         return jsonify({'success': False, 'message': 'Usuario no autenticado'}), 401
     
     task_id = request.form.get('task_id')
     pause_type = request.form.get('pause_type')
-    pause_reason = ""
-
-    current_app.logger.debug(f"Received pause request - task_id: {task_id}, pause_type: {pause_type}")
-    current_app.logger.debug(f"Full form data: {request.form}")
-
+    
+    current_app.logger.debug(f"Attempting to pause task with ID: {task_id}")
+    current_app.logger.debug(f"Form data: {request.form}")
+    current_app.logger.debug(f"Session data: {session}")
+    
     if not task_id:
-        current_app.logger.error("No task_id provided in the request")
+        current_app.logger.error("No task_id provided in the form data")
         return jsonify({'success': False, 'message': 'No se proporcionó ID de tarea'}), 400
-
-    if pause_type == 'end_of_day':
-        pause_reason = "Final del día"
-    elif pause_type == 'lunch_break':
-        pause_reason = "Pausa para almorzar"
-    elif pause_type == 'lack_of_materials':
-        materials_reason = request.form.get('materials_reason', '')
-        pause_reason = f"Falta de materiales: {materials_reason}"
-    elif pause_type == 'other':
-        other_reason = request.form.get('other_reason', '')
-        pause_reason = f"Otra razón: {other_reason}"
+    
+    pause_reason_map = {
+        'end_of_day': "Final del día",
+        'lunch_break': "Pausa para almorzar",
+        'lack_of_materials': f"Falta de materiales: {request.form.get('materials_reason', '')}",
+        'other': f"Otra razón: {request.form.get('other_reason', '')}"
+    }
+    pause_reason = pause_reason_map.get(pause_type, "")
     
     timestamp = format_timestamp()
+    
     try:
-        task = Task.query.filter_by(id=task_id, worker_number=session['user']['number']).first()
-        if task:
-            if task.status == 'Paused':
-                current_app.logger.warning(f"Task {task_id} is already paused")
-                return jsonify({'success': False, 'message': 'Esta tarea ya está pausada'}), 400
-            
-            task.status = 'Paused'
-            if not task.pause_1_time:
-                task.pause_1_time = timestamp
-                task.pause_1_reason = pause_reason
-            elif not task.pause_2_time:
-                task.pause_2_time = timestamp
-                task.pause_2_reason = pause_reason
-            else:
-                current_app.logger.warning(f"Task {task_id} has already been paused twice")
-                return jsonify({'success': False, 'message': 'Esta tarea ya ha sido pausada dos veces'}), 400
-            
-            db.session.commit()
-            current_app.logger.info(f"Task {task_id} paused successfully")
-            print(f"DEBUG: Task paused - ID: {task_id}, Timestamp: {timestamp}, Reason: {pause_reason}")
-            
-            return jsonify({'success': True, 'message': 'Tarea pausada con éxito'})
+        task = Task.get_task_by_id(task_id)
+        if not task:
+            current_app.logger.error(f"Task with ID {task_id} not found in the database")
+            return jsonify({'success': False, 'message': 'Tarea no encontrada en la base de datos'}), 404
+        
+        current_app.logger.debug(f"Task found: {task.to_dict()}")
+        current_app.logger.debug(f"Session user: {session['user']}")
+        
+        if str(task.worker_number) != str(session['user']['number']):
+            current_app.logger.error(f"Task {task_id} does not belong to the current user")
+            current_app.logger.debug(f"Task worker number: {task.worker_number}, Session user number: {session['user']['number']}")
+            return jsonify({'success': False, 'message': 'Esta tarea no pertenece al usuario actual'}), 403
+        
+        if task.status == 'Paused':
+            current_app.logger.warning(f"Task {task_id} is already paused")
+            return jsonify({'success': False, 'message': 'Esta tarea ya está pausada'}), 400
+        
+        task.status = 'Paused'
+        if not task.pause_1_time:
+            task.pause_1_time = timestamp
+            task.pause_1_reason = pause_reason
+        elif not task.pause_2_time:
+            task.pause_2_time = timestamp
+            task.pause_2_reason = pause_reason
         else:
-            current_app.logger.error(f"Task not found or does not belong to the current user: {task_id}")
-            return jsonify({'success': False, 'message': 'Tarea no encontrada o no pertenece al usuario actual'}), 404
+            current_app.logger.warning(f"Task {task_id} has already been paused twice")
+            return jsonify({'success': False, 'message': 'Esta tarea ya ha sido pausada dos veces'}), 400
+        
+        db.session.commit()
+        
+        # Validate the data after the commit
+        updated_task = Task.get_task_by_id(task_id)
+        if updated_task.pause_1_time != timestamp or updated_task.pause_1_reason != pause_reason:
+            current_app.logger.error(f"Pause time and reason were not correctly written to the database for task {task_id}")
+            return jsonify({'success': False, 'message': 'Error al guardar la información de pausa en la base de datos'}), 500
+        
+        current_app.logger.info(f"Task {task_id} paused successfully")
+        current_app.logger.debug(f"DEBUG: Task paused - ID: {task_id}, Timestamp: {timestamp}, Reason: {pause_reason}")
+        
+        return jsonify({'success': True, 'message': 'Tarea pausada con éxito'})
     except SQLAlchemyError as e:
         db.session.rollback()
         current_app.logger.error(f"SQLAlchemy error pausing task: {str(e)}")
         return jsonify({'success': False, 'message': f'Error al pausar la tarea: {str(e)}'}), 500
+    except Exception as e:
+        current_app.logger.error(f"Unexpected error pausing task: {str(e)}")
+        return jsonify({'success': False, 'message': f'Error inesperado al pausar la tarea: {str(e)}'}), 500
 
 @bp.route('/resume_task', methods=['POST'])
 def resume_task():
