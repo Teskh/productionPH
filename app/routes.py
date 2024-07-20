@@ -383,68 +383,49 @@ def resume_task():
 @bp.route('/finish_task', methods=['POST'])
 def finish_task():
     if 'user' not in session:
-        current_app.logger.warning("User not in session, redirecting to index")
-        return redirect(url_for('main.index'))
+        current_app.logger.warning("User not in session")
+        return jsonify({'success': False, 'message': 'Usuario no autenticado'}), 401
 
     task_id = request.form.get('task_id')
     timestamp = format_timestamp()
     station = session.get('station')
 
-    print(f"DEBUG: Attempting to finish task with ID: {task_id}")  # Command prompt debug message
     current_app.logger.debug(f"Attempting to finish task with ID: {task_id}")
     current_app.logger.debug(f"Form data: {request.form}")
     current_app.logger.debug(f"Session data: {session}")
-    current_app.logger.debug(f"Request method: {request.method}")
-    current_app.logger.debug(f"Request headers: {request.headers}")
-    current_app.logger.debug(f"Request form: {request.form}")
-    current_app.logger.debug(f"Request data: {request.data}")
-    current_app.logger.debug(f"Request json: {request.json}")
 
     if not task_id:
         current_app.logger.error("No task_id provided in the form data")
-        current_app.logger.error(f"Request method: {request.method}")
-        current_app.logger.error(f"Request headers: {request.headers}")
-        current_app.logger.error(f"Request form: {request.form}")
-        flash('No se proporcionó un ID de tarea válido', 'danger')
-        return redirect(url_for('main.dashboard'))
+        return jsonify({'success': False, 'message': 'No se proporcionó un ID de tarea válido'}), 400
 
     try:
         task = Task.get_task_by_id(task_id)
         if not task:
             current_app.logger.error(f"Task with ID {task_id} not found in the database")
-            flash('Tarea no encontrada en la base de datos', 'danger')
-            return redirect(url_for('main.dashboard'))
-
-        current_app.logger.debug(f"Task found: {task.to_dict()}")
-        current_app.logger.debug(f"Session user: {session['user']}")
+            return jsonify({'success': False, 'message': 'Tarea no encontrada en la base de datos'}), 404
 
         if str(task.worker_number) != str(session['user']['number']):
             current_app.logger.error(f"Task {task_id} does not belong to the current user")
-            current_app.logger.debug(f"Task worker number: {task.worker_number}, Session user number: {session['user']['number']}")
-            flash('Esta tarea no pertenece al usuario actual', 'danger')
-            return redirect(url_for('main.dashboard'))
+            return jsonify({'success': False, 'message': 'Esta tarea no pertenece al usuario actual'}), 403
 
         if task.status not in ['en proceso', 'Paused']:
             current_app.logger.warning(f"Task {task_id} is not in a valid state to be finished")
-            flash('Esta tarea no está en un estado válido para ser finalizada', 'warning')
-            return redirect(url_for('main.dashboard'))
+            return jsonify({'success': False, 'message': 'Esta tarea no está en un estado válido para ser finalizada'}), 400
 
         result = Task.finish_task(task_id, timestamp, station)
         if result:
             current_app.logger.info(f"Successfully finished task {task_id} - Project: {task.project}, House: {task.house}, Module: {task.module}, Activity: {task.activity}")
-            flash('Tarea finalizada con éxito', 'success')
+            return jsonify({'success': True, 'message': 'Tarea finalizada con éxito'})
         else:
             current_app.logger.error(f"Failed to finish task {task_id}")
-            flash('Error al finalizar la tarea', 'danger')
+            return jsonify({'success': False, 'message': 'Error al finalizar la tarea'}), 500
     except SQLAlchemyError as e:
         db.session.rollback()
         current_app.logger.error(f"SQLAlchemy error finishing task: {str(e)}")
-        flash(f'Error al finalizar la tarea: {str(e)}', 'danger')
+        return jsonify({'success': False, 'message': f'Error al finalizar la tarea: {str(e)}'}), 500
     except Exception as e:
         current_app.logger.error(f"Unexpected error finishing task: {str(e)}")
-        flash(f'Error inesperado al finalizar la tarea: {str(e)}', 'danger')
-
-    return redirect(url_for('main.dashboard'))
+        return jsonify({'success': False, 'message': f'Error inesperado al finalizar la tarea: {str(e)}'}), 500
 
 @bp.route('/get_project_details/<project>')
 def get_project_details(project):

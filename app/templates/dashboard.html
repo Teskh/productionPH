@@ -312,17 +312,26 @@
 
     function finishTask(taskId) {
         console.log('Finishing task with ID:', taskId);  // Debug log
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = "{{ url_for('main.finish_task') }}";
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'task_id';
-        input.value = taskId;
-        form.appendChild(input);
-        document.body.appendChild(form);
-        console.log('Form created:', form);  // Debug log
-        form.submit();
+        fetch("{{ url_for('main.finish_task') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'task_id=' + encodeURIComponent(taskId)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showMessage(data.message, 'success');
+                location.reload();
+            } else {
+                showMessage(data.message, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showMessage('Error al finalizar la tarea', 'danger');
+        });
     }
 
     function resumeTask(taskId) {
