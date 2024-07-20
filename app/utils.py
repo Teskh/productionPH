@@ -29,15 +29,6 @@ def get_task_summary(start_date, end_date):
         print(f"Error generating task summary: {str(e)}")
         return pd.DataFrame()
 
-def get_project_progress(project_name):
-    try:
-        total_tasks = Task.query.filter_by(project=project_name).count()
-        completed_tasks = Task.query.filter_by(project=project_name, status='Finished').count()
-        return (completed_tasks / total_tasks) * 100 if total_tasks > 0 else 0
-    except SQLAlchemyError as e:
-        print(f"Error calculating project progress: {str(e)}")
-        return 0
-
 def safe_db_operation(operation):
     try:
         result = operation()
