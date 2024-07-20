@@ -16,9 +16,9 @@ def create_app(config_name='default'):
         db.create_all()
 
         # Load Excel data
-        app.activity_data = load_activity_data()
-        app.project_data = load_project_data()
-        app.worker_data = load_worker_data()
+        app.config['ACTIVITY_DATA'] = load_activity_data(app.config['ACTIVITY_DATA_PATH'])
+        app.config['PROJECT_DATA'] = load_project_data(app.config['PROJECT_DATA_PATH'])
+        app.config['WORKER_DATA'] = load_worker_data(app.config['WORKER_DATA_PATH'])
 
     # Set up scheduler
     scheduler = BackgroundScheduler()
