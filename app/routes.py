@@ -199,22 +199,28 @@ def start_new_task():
             session['last_house_number'] = house_number
             session['last_n_modulo'] = n_modulo
             
-            new_task = Task.add_task(
-                worker_number=user['number'],
-                worker_name=user['name'],
-                project=project,
-                house=house_number,
-                module=n_modulo,
-                activity=activity,
-                station_i=session['station'],
-                line=session['line']
-            )
+            try:
+                new_task = Task.add_task(
+                    worker_number=user['number'],
+                    worker_name=user['name'],
+                    project=project,
+                    house=house_number,
+                    module=n_modulo,
+                    activity=activity,
+                    station_i=session['station'],
+                    line=session['line']
+                )
             
-            if new_task:
-                flash('Nueva tarea iniciada con éxito', 'success')
-                return redirect(url_for('main.dashboard'))
-            else:
-                flash('Error al iniciar la tarea', 'danger')
+                if new_task:
+                    current_app.logger.info(f"New task created successfully: {new_task.to_dict()}")
+                    flash('Nueva tarea iniciada con éxito', 'success')
+                    return redirect(url_for('main.dashboard'))
+                else:
+                    current_app.logger.error("Task.add_task returned None")
+                    flash('Error al iniciar la tarea: La función add_task devolvió None', 'danger')
+            except Exception as e:
+                current_app.logger.error(f"Error creating new task: {str(e)}")
+                flash(f'Error al iniciar la tarea: {str(e)}', 'danger')
         
         last_project = session.get('last_project', '')
         last_house_number = session.get('last_house_number', '')
