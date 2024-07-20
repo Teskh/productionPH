@@ -253,6 +253,10 @@ def pause_task():
     pause_type = request.form.get('pause_type')
     pause_reason = ""
 
+    if not task_id:
+        current_app.logger.error("No task_id provided in the request")
+        return jsonify({'success': False, 'message': 'No se proporcionó ID de tarea'}), 400
+
     if pause_type == 'end_of_day':
         pause_reason = "Final del día"
     elif pause_type == 'lunch_break':
