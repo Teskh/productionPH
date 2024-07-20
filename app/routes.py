@@ -280,8 +280,16 @@ def pause_task():
                 return jsonify({'success': False, 'message': 'Esta tarea no pertenece al usuario actual'}), 403
             
             task.status = 'Paused'
-            task.pause_reason = pause_reason
-            task.pause_time = timestamp
+            if not task.pause_1_time:
+                task.pause_1_time = timestamp
+                task.pause_1_reason = pause_reason
+            elif not task.pause_2_time:
+                task.pause_2_time = timestamp
+                task.pause_2_reason = pause_reason
+            else:
+                current_app.logger.error(f"Task {task_id} has already been paused twice")
+                return jsonify({'success': False, 'message': 'Esta tarea ya ha sido pausada dos veces'}), 400
+            
             db.session.commit()
             current_app.logger.info(f"Task {task_id} paused successfully")
             return jsonify({'success': True, 'message': 'Tarea pausada con éxito'})
