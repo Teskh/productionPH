@@ -11,19 +11,19 @@ bp = Blueprint('main', __name__)
 @bp.before_request
 def load_data():
     if not hasattr(current_app, 'data_loaded'):
-    current_app.supervisors = {}
-    current_app.workers = {}
-    current_app.projects = {}
-    current_app.activities = {}
-    try:
-        current_app.supervisors, current_app.workers = current_app.config['WORKER_DATA']
-        current_app.projects = current_app.config['PROJECT_DATA']
-        current_app.activities = current_app.config['ACTIVITY_DATA']
-        logging.info("Data loaded successfully")
-    except Exception as e:
-        logging.error(f"Error loading data: {str(e)}")
-        flash("Error al cargar los datos. Por favor, contacte al administrador.", "danger")
-    current_app.data_loaded = True
+        current_app.supervisors = {}
+        current_app.workers = {}
+        current_app.projects = {}
+        current_app.activities = {}
+        try:
+            current_app.supervisors, current_app.workers = current_app.config['WORKER_DATA']
+            current_app.projects = current_app.config['PROJECT_DATA']
+            current_app.activities = current_app.config['ACTIVITY_DATA']
+            logging.info("Data loaded successfully")
+        except Exception as e:
+            logging.error(f"Error loading data: {str(e)}")
+            flash("Error al cargar los datos. Por favor, contacte al administrador.", "danger")
+        current_app.data_loaded = True
 
 @bp.route('/')
 def index():
