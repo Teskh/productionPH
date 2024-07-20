@@ -40,7 +40,7 @@ class Task(db.Model):
     @staticmethod
     def get_active_task(worker_number):
         tasks = Task.get_active_tasks(worker_number)
-        return next((task for task in tasks if task['status'] == 'en proceso'), None)
+        return next((task for task in tasks if task.status == 'en proceso'), None)
 
     @staticmethod
     def add_task(worker_number, worker_name, project, house, module, activity, station_i, line):
