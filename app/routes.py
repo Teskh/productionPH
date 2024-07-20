@@ -51,7 +51,7 @@ def submit():
     if identification_method == 'worker_number':
         worker_number = request.form['worker_number']
         current_app.logger.debug(f"Worker number: {worker_number}")
-        worker = next((w for w in workers.values() if str(w['number']) == worker_number), None)
+        worker = next((w for w in current_app.workers.values() if str(w['number']) == worker_number), None)
         if worker:
             current_app.logger.debug(f"Worker found: {worker}")
             session['user'] = {
@@ -73,7 +73,7 @@ def submit():
         worker_name = request.form['worker_name']
         supervisor = request.form['supervisor']
         current_app.logger.debug(f"Worker name: {worker_name}, Supervisor: {supervisor}")
-        worker = workers.get(worker_name)
+        worker = current_app.workers.get(worker_name)
         if worker and worker['supervisor'] == supervisor:
             current_app.logger.debug(f"Worker found: {worker}")
             session['user'] = {
