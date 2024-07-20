@@ -10,17 +10,24 @@ def init_database():
         existing_columns = inspector.get_columns('task')
         existing_column_names = [col['name'] for col in existing_columns]
 
-        if 'station_i' not in existing_column_names:
-            db.engine.execute('ALTER TABLE task ADD COLUMN station_i VARCHAR(50)')
-            print("Added station_i column to task table.")
+        new_columns = [
+            ('supervisor', 'VARCHAR(100)'),
+            ('specialty', 'VARCHAR(100)'),
+            ('pause_1_time', 'DATETIME'),
+            ('pause_1_reason', 'VARCHAR(200)'),
+            ('resume_1_time', 'DATETIME'),
+            ('pause_2_time', 'DATETIME'),
+            ('pause_2_reason', 'VARCHAR(200)'),
+            ('resume_2_time', 'DATETIME'),
+            ('station_i', 'VARCHAR(50)'),
+            ('station_f', 'VARCHAR(50)'),
+            ('line', 'VARCHAR(50)')
+        ]
 
-        if 'station_f' not in existing_column_names:
-            db.engine.execute('ALTER TABLE task ADD COLUMN station_f VARCHAR(50)')
-            print("Added station_f column to task table.")
-
-        if 'line' not in existing_column_names:
-            db.engine.execute('ALTER TABLE task ADD COLUMN line VARCHAR(50)')
-            print("Added line column to task table.")
+        for column_name, column_type in new_columns:
+            if column_name not in existing_column_names:
+                db.engine.execute(f'ALTER TABLE task ADD COLUMN {column_name} {column_type}')
+                print(f"Added {column_name} column to task table.")
 
         db.create_all()  # This will create any new tables if needed
         print("Database schema updated.")
