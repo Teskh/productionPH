@@ -58,10 +58,15 @@ class Task(db.Model):
             )
             db.session.add(new_task)
             db.session.commit()
+            current_app.logger.info(f"New task added successfully: {new_task.to_dict()}")
             return new_task
         except SQLAlchemyError as e:
             db.session.rollback()
-            print(f"Error adding task: {str(e)}")
+            current_app.logger.error(f"SQLAlchemy error adding task: {str(e)}")
+            return None
+        except Exception as e:
+            db.session.rollback()
+            current_app.logger.error(f"Unexpected error adding task: {str(e)}")
             return None
 
     @staticmethod
