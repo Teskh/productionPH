@@ -4,19 +4,27 @@ from sqlalchemy.exc import SQLAlchemyError
 
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    start_time = db.Column(db.DateTime, nullable=False)
     worker_number = db.Column(db.String(50), nullable=False)
+    supervisor = db.Column(db.String(100))
     worker_name = db.Column(db.String(100), nullable=False)
+    specialty = db.Column(db.String(100))
     project = db.Column(db.String(100), nullable=False)
     house = db.Column(db.String(50), nullable=False)
     module = db.Column(db.String(50), nullable=False)
     activity = db.Column(db.String(100), nullable=False)
-    start_time = db.Column(db.DateTime, nullable=False)
-    end_time = db.Column(db.DateTime)
     status = db.Column(db.String(20), nullable=False)
-    comment = db.Column(db.Text)
     station_i = db.Column(db.String(50))
-    line = db.Column(db.String(50))
     station_f = db.Column(db.String(50))
+    line = db.Column(db.String(50))
+    pause_1_time = db.Column(db.DateTime)
+    pause_1_reason = db.Column(db.String(200))
+    resume_1_time = db.Column(db.DateTime)
+    pause_2_time = db.Column(db.DateTime)
+    pause_2_reason = db.Column(db.String(200))
+    resume_2_time = db.Column(db.DateTime)
+    end_time = db.Column(db.DateTime)
+    comment = db.Column(db.Text)
 
     def __repr__(self):
         return f'<Task {self.id} - {self.worker_name} - {self.activity}>'
@@ -141,19 +149,27 @@ class Task(db.Model):
     def to_dict(self):
         return {
             'id': self.id,
+            'start_time': self.start_time,
             'worker_number': self.worker_number,
+            'supervisor': self.supervisor,
             'worker_name': self.worker_name,
+            'specialty': self.specialty,
             'project': self.project,
             'house': self.house,
             'module': self.module,
             'activity': self.activity,
-            'start_time': self.start_time,
-            'end_time': self.end_time,
             'status': self.status,
-            'comment': self.comment,
             'station_i': self.station_i,
+            'station_f': self.station_f,
             'line': self.line,
-            'station_f': self.station_f
+            'pause_1_time': self.pause_1_time,
+            'pause_1_reason': self.pause_1_reason,
+            'resume_1_time': self.resume_1_time,
+            'pause_2_time': self.pause_2_time,
+            'pause_2_reason': self.pause_2_reason,
+            'resume_2_time': self.resume_2_time,
+            'end_time': self.end_time,
+            'comment': self.comment
         }
 
     @staticmethod
