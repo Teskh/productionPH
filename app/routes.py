@@ -279,10 +279,13 @@ def pause_task():
                 current_app.logger.error(f"Task {task_id} does not belong to the current user")
                 return jsonify({'success': False, 'message': 'Esta tarea no pertenece al usuario actual'}), 403
             
-            updated_task = Task.update_task(task_id, 'Paused', timestamp, pause_reason)
+            updated_task = Task.update_task(int(task_id), 'Paused', timestamp, pause_reason)
             if updated_task:
                 current_app.logger.info(f"Task {task_id} paused successfully")
                 return jsonify({'success': True, 'message': 'Tarea pausada con éxito'})
+            elif updated_task is None:
+                current_app.logger.warning(f"Task {task_id} has already been paused twice")
+                return jsonify({'success': False, 'message': 'Esta tarea ya ha sido pausada dos veces'}), 400
             else:
                 current_app.logger.error(f"Failed to update task {task_id}")
                 return jsonify({'success': False, 'message': 'Error al pausar la tarea'}), 500
