@@ -26,9 +26,10 @@ def init_database():
 
         for column_name, column_type in new_columns:
             if column_name not in existing_column_names:
-                db.engine.execute(f'ALTER TABLE task ADD COLUMN {column_name} {column_type}')
+                db.session.execute(db.text(f'ALTER TABLE task ADD COLUMN {column_name} {column_type}'))
                 print(f"Added {column_name} column to task table.")
 
+        db.session.commit()
         db.create_all()  # This will create any new tables if needed
         print("Database schema updated.")
 
