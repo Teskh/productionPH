@@ -8,8 +8,9 @@ import logging
 
 bp = Blueprint('main', __name__)
 
-@bp.before_app_first_request
+@bp.before_request
 def load_data():
+    if not hasattr(current_app, 'data_loaded'):
     current_app.supervisors = {}
     current_app.workers = {}
     current_app.projects = {}
@@ -22,6 +23,7 @@ def load_data():
     except Exception as e:
         logging.error(f"Error loading data: {str(e)}")
         flash("Error al cargar los datos. Por favor, contacte al administrador.", "danger")
+    current_app.data_loaded = True
 
 @bp.route('/')
 def index():
