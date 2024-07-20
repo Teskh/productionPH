@@ -8,6 +8,9 @@ import time
 def format_timestamp():
     return datetime.now().strftime('%Y-%m-%d %H:%M')
 
+def parse_timestamp(timestamp_str):
+    return datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M')
+
 def get_task_summary(start_date, end_date):
     try:
         tasks = Task.query.filter(
