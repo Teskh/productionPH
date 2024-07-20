@@ -352,55 +352,48 @@ def finish_task():
     if 'user' not in session:
         current_app.logger.warning("User not in session, redirecting to index")
         return redirect(url_for('main.index'))
-    
+
     task_id = request.form.get('task_id')
     timestamp = format_timestamp()
-    
+    station = session.get('station')
+
+    print(f"DEBUG: Attempting to finish task with ID: {task_id}")  # Command prompt debug message
     current_app.logger.debug(f"Attempting to finish task with ID: {task_id}")
     current_app.logger.debug(f"Form data: {request.form}")
     current_app.logger.debug(f"Session data: {session}")
-    
+
     if not task_id:
         current_app.logger.error("No task_id provided in the form data")
         flash('No se proporcionó un ID de tarea válido', 'danger')
         return redirect(url_for('main.dashboard'))
-    
+
     try:
-        # Get the task details
         task = Task.get_task_by_id(task_id)
         if not task:
             current_app.logger.error(f"Task with ID {task_id} not found in the database")
             flash('Tarea no encontrada en la base de datos', 'danger')
             return redirect(url_for('main.dashboard'))
-        
+
         current_app.logger.debug(f"Task found: {task.to_dict()}")
         current_app.logger.debug(f"Session user: {session['user']}")
-        
-        # Check if the task belongs to the current user
+
         if str(task.worker_number) != str(session['user']['number']):
             current_app.logger.error(f"Task {task_id} does not belong to the current user")
             current_app.logger.debug(f"Task worker number: {task.worker_number}, Session user number: {session['user']['number']}")
             flash('Esta tarea no pertenece al usuario actual', 'danger')
             return redirect(url_for('main.dashboard'))
-        
-        # Check for related active tasks
-        related_tasks = Task.get_related_active_tasks(task.project, task.house, task.module, task.activity)
-        
-        current_app.logger.debug(f"Related tasks: {[t.to_dict() for t in related_tasks]}")
-        
-        # If there are other active related tasks, don't allow finishing
-        if len(related_tasks) > 1:  # > 1 because it includes the current task
-            current_app.logger.warning(f"Cannot finish task {task_id} due to related active tasks")
-            flash('No se puede finalizar la tarea porque otros usuarios tienen la misma tarea activa', 'warning')
+
+        if task.status not in ['en proceso', 'Paused']:
+            current_app.logger.warning(f"Task {task_id} is not in a valid state to be finished")
+            flash('Esta tarea no está en un estado válido para ser finalizada', 'warning')
             return redirect(url_for('main.dashboard'))
-        
-        # Finish the task for all related users (including paused tasks)
-        result = Task.finish_related_tasks(task.project, task.house, task.module, task.activity, timestamp, session.get('station'))
+
+        result = Task.finish_task(task_id, timestamp, station)
         if result:
-            current_app.logger.info(f"Successfully finished task {task_id} and related tasks")
-            flash('Tarea finalizada con éxito para todos los usuarios relacionados', 'success')
+            current_app.logger.info(f"Successfully finished task {task_id} - Project: {task.project}, House: {task.house}, Module: {task.module}, Activity: {task.activity}")
+            flash('Tarea finalizada con éxito', 'success')
         else:
-            current_app.logger.error(f"Failed to finish task {task_id} and related tasks")
+            current_app.logger.error(f"Failed to finish task {task_id}")
             flash('Error al finalizar la tarea', 'danger')
     except SQLAlchemyError as e:
         db.session.rollback()
@@ -409,7 +402,7 @@ def finish_task():
     except Exception as e:
         current_app.logger.error(f"Unexpected error finishing task: {str(e)}")
         flash(f'Error inesperado al finalizar la tarea: {str(e)}', 'danger')
-    
+
     return redirect(url_for('main.dashboard'))
 
 @bp.route('/get_project_details/<project>')

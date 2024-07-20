@@ -123,39 +123,24 @@ class Task(db.Model):
         ).all()
 
     @staticmethod
-    def finish_related_tasks(project, house_number, n_modulo, activity, timestamp, station):
+    def finish_task(task_id, timestamp, station):
         from flask import current_app
-        from datetime import datetime
         try:
-            tasks = Task.query.filter(
-                Task.project == project,
-                Task.house == house_number,
-                Task.module == n_modulo,
-                Task.activity == activity,
-                Task.status.in_(['en proceso', 'Paused'])
-            ).all()
-            
-            current_app.logger.debug(f"Found {len(tasks)} related tasks to finish")
-            
-            end_time = datetime.strptime(timestamp, '%Y-%m-%d %H:%M')
-            
-            for task in tasks:
+            task = Task.query.get(task_id)
+            if task and task.status in ['en proceso', 'Paused']:
                 current_app.logger.debug(f"Finishing task: {task.to_dict()}")
                 task.status = 'Finished'
-                task.end_time = end_time
+                task.end_time = datetime.strptime(timestamp, '%Y-%m-%d %H:%M')
                 task.station_f = station
-            
-            db.session.commit()
-            current_app.logger.info("Successfully finished all related tasks")
-            return True
+                db.session.commit()
+                current_app.logger.info(f"Task {task_id} finished successfully")
+                return task
+            current_app.logger.error(f"Task with ID {task_id} not found or not in the correct status")
+            return None
         except SQLAlchemyError as e:
             db.session.rollback()
-            current_app.logger.error(f"SQLAlchemy error finishing related tasks: {str(e)}")
-            return False
-        except Exception as e:
-            db.session.rollback()
-            current_app.logger.error(f"Unexpected error finishing related tasks: {str(e)}")
-            return False
+            current_app.logger.error(f"SQLAlchemy error finishing task: {str(e)}")
+            return None
 
     def to_dict(self):
         return {
