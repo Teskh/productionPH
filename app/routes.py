@@ -361,6 +361,11 @@ def finish_task():
     current_app.logger.debug(f"Attempting to finish task with ID: {task_id}")
     current_app.logger.debug(f"Form data: {request.form}")
     current_app.logger.debug(f"Session data: {session}")
+    current_app.logger.debug(f"Request method: {request.method}")
+    current_app.logger.debug(f"Request headers: {request.headers}")
+    current_app.logger.debug(f"Request form: {request.form}")
+    current_app.logger.debug(f"Request data: {request.data}")
+    current_app.logger.debug(f"Request json: {request.json}")
 
     if not task_id:
         current_app.logger.error("No task_id provided in the form data")
