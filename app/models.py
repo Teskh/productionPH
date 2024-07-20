@@ -79,6 +79,9 @@ class Task(db.Model):
                     elif not task.pause_2_time:
                         task.pause_2_time = timestamp
                         task.pause_2_reason = pause_reason
+                    else:
+                        current_app.logger.warning(f"Task {task_id} has already been paused twice")
+                        return None
                 elif new_status == 'en proceso':
                     if task.pause_1_time and not task.resume_1_time:
                         task.resume_1_time = timestamp
