@@ -329,56 +329,51 @@ def pause_task():
 @bp.route('/resume_task', methods=['POST'])
 def resume_task():
     if 'user' not in session:
-        current_app.logger.warning("User not in session, redirecting to index")
-        return redirect(url_for('main.index'))
+        current_app.logger.warning("User not in session")
+        return jsonify({'success': False, 'message': 'Usuario no autenticado'}), 401
     
     user = session['user']
-    task_id = request.form.get('task_id')
+    data = request.get_json()
+    task_id = data.get('task_id')
     
     current_app.logger.debug(f"Attempting to resume task with ID: {task_id}")
-    current_app.logger.debug(f"Form data: {request.form}")
+    current_app.logger.debug(f"JSON data: {data}")
     current_app.logger.debug(f"Session data: {session}")
     
     if not task_id:
-        current_app.logger.error("No task_id provided in the form data")
-        flash('No se proporcionó un ID de tarea válido', 'danger')
-        return redirect(url_for('main.dashboard'))
+        current_app.logger.error("No task_id provided in the JSON data")
+        return jsonify({'success': False, 'message': 'No se proporcionó un ID de tarea válido'}), 400
     
     try:
         active_task = Task.get_active_task(user['number'])
         if active_task:
             current_app.logger.warning(f"User {user['number']} already has an active task")
-            flash('Ya tiene una tarea activa. Por favor, finalícela o páusela antes de reanudar otra.', 'warning')
-            return redirect(url_for('main.dashboard'))
+            return jsonify({'success': False, 'message': 'Ya tiene una tarea activa. Por favor, finalícela o páusela antes de reanudar otra.'}), 400
         
         task = Task.get_task_by_id(task_id)
         if not task:
             current_app.logger.error(f"Task with ID {task_id} not found")
-            flash('Tarea no encontrada', 'danger')
-            return redirect(url_for('main.dashboard'))
+            return jsonify({'success': False, 'message': 'Tarea no encontrada'}), 404
         
         if task.status != 'Paused':
             current_app.logger.warning(f"Task {task_id} is not in Paused state")
-            flash('Esta tarea no está pausada y no puede ser reanudada', 'warning')
-            return redirect(url_for('main.dashboard'))
+            return jsonify({'success': False, 'message': 'Esta tarea no está pausada y no puede ser reanudada'}), 400
         
         timestamp = format_timestamp()
         updated_task = Task.update_task(task_id, 'en proceso', timestamp)
         if updated_task:
             current_app.logger.info(f"Task {task_id} resumed successfully")
-            flash('Tarea reanudada con éxito', 'success')
+            return jsonify({'success': True, 'message': 'Tarea reanudada con éxito'})
         else:
             current_app.logger.error(f"Failed to resume task {task_id}")
-            flash('Error al reanudar la tarea', 'danger')
+            return jsonify({'success': False, 'message': 'Error al reanudar la tarea'}), 500
     except SQLAlchemyError as e:
         db.session.rollback()
         current_app.logger.error(f"SQLAlchemy error resuming task: {str(e)}")
-        flash(f'Error al reanudar la tarea: {str(e)}', 'danger')
+        return jsonify({'success': False, 'message': f'Error al reanudar la tarea: {str(e)}'}), 500
     except Exception as e:
         current_app.logger.error(f"Unexpected error resuming task: {str(e)}")
-        flash(f'Error inesperado al reanudar la tarea: {str(e)}', 'danger')
-    
-    return redirect(url_for('main.dashboard'))
+        return jsonify({'success': False, 'message': f'Error inesperado al reanudar la tarea: {str(e)}'}), 500
 
 @bp.route('/finish_task', methods=['POST'])
 def finish_task():

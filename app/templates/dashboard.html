@@ -327,17 +327,26 @@
 
     function resumeTask(taskId) {
         console.log('Resuming task with ID:', taskId);  // Debug log
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = "{{ url_for('main.resume_task') }}";
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'task_id';
-        input.value = taskId;
-        form.appendChild(input);
-        document.body.appendChild(form);
-        console.log('Form created:', form);  // Debug log
-        form.submit();
+        fetch("{{ url_for('main.resume_task') }}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({task_id: taskId}),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showMessage(data.message, 'success');
+                location.reload();
+            } else {
+                showMessage(data.message, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showMessage('Error al reanudar la tarea', 'danger');
+        });
     }
 
 </script>
