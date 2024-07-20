@@ -253,6 +253,9 @@ def pause_task():
     pause_type = request.form.get('pause_type')
     pause_reason = ""
 
+    current_app.logger.debug(f"Received pause request - task_id: {task_id}, pause_type: {pause_type}")
+    current_app.logger.debug(f"Full form data: {request.form}")
+
     if not task_id:
         current_app.logger.error("No task_id provided in the request")
         return jsonify({'success': False, 'message': 'No se proporcionó ID de tarea'}), 400
