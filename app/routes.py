@@ -230,7 +230,7 @@ def start_new_task():
         return render_template('start_new_task.html', 
                                user=user, 
                                projects=projects_data, 
-                               activities=activities,
+                               activities=current_app.activities,
                                user_specialty=user['specialty'],
                                line=session.get('line', 'L1'),
                                station_i=session.get('station', 1),
