@@ -280,6 +280,10 @@ def pause_task():
                 current_app.logger.info(f"Task {task_id} paused successfully")
                 # Debug print
                 print(f"DEBUG: Task paused - ID: {task_id}, Timestamp: {timestamp}, Reason: {pause_reason}")
+                
+                # Explicitly update the database
+                db.session.commit()
+                
                 return jsonify({'success': True, 'message': 'Tarea pausada con éxito'})
             elif updated_task is None:
                 current_app.logger.warning(f"Task {task_id} has already been paused twice")
