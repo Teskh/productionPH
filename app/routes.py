@@ -364,7 +364,7 @@ def resume_task():
             current_app.logger.warning(f"Task {task_id} is not in Paused state")
             return jsonify({'success': False, 'message': 'Esta tarea no está pausada y no puede ser reanudada'}), 400
         
-        timestamp = format_timestamp()
+        timestamp = parse_timestamp(format_timestamp())
         updated_task = Task.update_task(task_id, 'en proceso', timestamp)
         if updated_task:
             current_app.logger.info(f"Task {task_id} resumed successfully")
