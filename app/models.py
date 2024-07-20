@@ -58,9 +58,11 @@ class Task(db.Model):
 
     @staticmethod
     def update_task(task_id, new_status, timestamp=None, pause_reason=None, station=None):
+        from flask import current_app
         try:
             task = Task.query.get(task_id)
             if task:
+                current_app.logger.debug(f"Updating task: {task.to_dict()}")
                 task.status = new_status
                 if new_status == 'Paused':
                     if not task.pause_1_time:
@@ -78,11 +80,13 @@ class Task(db.Model):
                     task.end_time = timestamp
                     task.station_f = station
                 db.session.commit()
+                current_app.logger.info(f"Task {task_id} updated successfully")
                 return task
+            current_app.logger.error(f"Task with ID {task_id} not found")
             return None
         except SQLAlchemyError as e:
             db.session.rollback()
-            print(f"Error updating task: {str(e)}")
+            current_app.logger.error(f"SQLAlchemy error updating task: {str(e)}")
             return None
 
     @staticmethod
