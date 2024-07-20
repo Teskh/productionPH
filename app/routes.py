@@ -333,15 +333,20 @@ def resume_task():
         return jsonify({'success': False, 'message': 'Usuario no autenticado'}), 401
     
     user = session['user']
-    data = request.get_json()
-    task_id = data.get('task_id')
+    
+    # Handle both JSON and form data
+    if request.is_json:
+        data = request.get_json()
+        task_id = data.get('task_id')
+    else:
+        task_id = request.form.get('task_id')
     
     current_app.logger.debug(f"Attempting to resume task with ID: {task_id}")
-    current_app.logger.debug(f"JSON data: {data}")
+    current_app.logger.debug(f"Request data: {request.get_data()}")
     current_app.logger.debug(f"Session data: {session}")
     
     if not task_id:
-        current_app.logger.error("No task_id provided in the JSON data")
+        current_app.logger.error("No task_id provided in the request data")
         return jsonify({'success': False, 'message': 'No se proporcionó un ID de tarea válido'}), 400
     
     try:

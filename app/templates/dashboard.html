@@ -330,9 +330,9 @@
         fetch("{{ url_for('main.resume_task') }}", {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body: JSON.stringify({task_id: taskId}),
+            body: 'task_id=' + encodeURIComponent(taskId),
         })
         .then(response => response.json())
         .then(data => {
