@@ -1,7 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, jsonify, flash, current_app
 from app.models import Task, SQLAlchemyError
 from app.utils import format_timestamp
-from app.data_manager import load_worker_data, load_project_data, load_activity_data
 from app.database import db
 import uuid
 from collections import Counter
@@ -9,17 +8,16 @@ import logging
 
 bp = Blueprint('main', __name__)
 
-supervisors = {}
-workers = {}
-projects = {}
-activities = {}
-
+@bp.before_app_first_request
 def load_data():
-    global supervisors, workers, projects, activities
+    current_app.supervisors = {}
+    current_app.workers = {}
+    current_app.projects = {}
+    current_app.activities = {}
     try:
-        supervisors, workers = load_worker_data(current_app.config['WORKER_DATA_PATH'])
-        projects = load_project_data(current_app.config['PROJECT_DATA_PATH'])
-        activities = load_activity_data(current_app.config['ACTIVITY_DATA_PATH'])
+        current_app.supervisors, current_app.workers = current_app.config['WORKER_DATA']
+        current_app.projects = current_app.config['PROJECT_DATA']
+        current_app.activities = current_app.config['ACTIVITY_DATA']
         logging.info("Data loaded successfully")
     except Exception as e:
         logging.error(f"Error loading data: {str(e)}")
@@ -36,7 +34,7 @@ def index():
         session['station'] = 1
     
     error = request.args.get('error')
-    return render_template('index.html', supervisors=supervisors.keys(), line=session['line'], station=session['station'], error=error)
+    return render_template('index.html', supervisors=current_app.supervisors.keys(), line=session['line'], station=session['station'], error=error)
 
 @bp.route('/get_workers/<supervisor>')
 def get_workers(supervisor):
