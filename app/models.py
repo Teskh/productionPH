@@ -92,6 +92,8 @@ class Task(db.Model):
                     task.station_f = station
                 db.session.commit()
                 current_app.logger.info(f"Task {task_id} updated successfully")
+                # Debug print
+                print(f"DEBUG: Task updated in database - ID: {task_id}, Status: {new_status}, Timestamp: {timestamp}, Reason: {pause_reason}")
                 return task
             current_app.logger.error(f"Task with ID {task_id} not found")
             return None
