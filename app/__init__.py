@@ -1,19 +1,19 @@
 from flask import Flask
 from apscheduler.schedulers.background import BackgroundScheduler
 from app.scheduled_tasks import pause_active_tasks
-from .database import db, init_db
+from .database import db
 from .data_manager import load_activity_data, load_project_data, load_worker_data
-from config import config
+from config import Config
 
 def create_app(config_name='default'):
     app = Flask(__name__, static_folder='static', template_folder='templates')
-    app.config.from_object(config[config_name])
+    app.config.from_object(Config)
 
     # Initialize SQLAlchemy
     db.init_app(app)
     
     with app.app_context():
-        init_db(app)
+        db.create_all()
 
         # Load Excel data
         app.activity_data = load_activity_data()
