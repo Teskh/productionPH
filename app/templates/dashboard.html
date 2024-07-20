@@ -326,6 +326,7 @@
     }
 
     function resumeTask(taskId) {
+        console.log('Resuming task with ID:', taskId);  // Debug log
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = "{{ url_for('main.resume_task') }}";
@@ -335,6 +336,7 @@
         input.value = taskId;
         form.appendChild(input);
         document.body.appendChild(form);
+        console.log('Form created:', form);  // Debug log
         form.submit();
     }
 
