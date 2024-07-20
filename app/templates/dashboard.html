@@ -200,6 +200,7 @@
     function showPauseOptions(taskId) {
         console.log('Showing pause options for task ID:', taskId);
         document.getElementById('pauseTaskId').value = taskId;
+        document.getElementById('pauseForm').setAttribute('data-task-id', taskId);
         var pauseOptionsModal = new bootstrap.Modal(document.getElementById('pauseOptionsModal'));
         pauseOptionsModal.show();
     }
@@ -256,6 +257,8 @@
     function submitPauseForm() {
         const form = document.getElementById('pauseForm');
         const formData = new FormData(form);
+        const taskId = form.getAttribute('data-task-id');
+        formData.append('task_id', taskId);
         
         fetch(form.action, {
             method: 'POST',
