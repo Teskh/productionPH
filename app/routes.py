@@ -275,22 +275,26 @@ def pause_task():
     try:
         task = Task.query.filter_by(id=task_id, worker_number=session['user']['number']).first()
         if task:
-            updated_task = Task.update_task(task.id, 'Paused', timestamp, pause_reason)
-            if updated_task:
-                current_app.logger.info(f"Task {task_id} paused successfully")
-                # Debug print
-                print(f"DEBUG: Task paused - ID: {task_id}, Timestamp: {timestamp}, Reason: {pause_reason}")
-                
-                # Explicitly update the database
-                db.session.commit()
-                
-                return jsonify({'success': True, 'message': 'Tarea pausada con éxito'})
-            elif updated_task is None:
+            if task.status == 'Paused':
+                current_app.logger.warning(f"Task {task_id} is already paused")
+                return jsonify({'success': False, 'message': 'Esta tarea ya está pausada'}), 400
+            
+            task.status = 'Paused'
+            if not task.pause_1_time:
+                task.pause_1_time = timestamp
+                task.pause_1_reason = pause_reason
+            elif not task.pause_2_time:
+                task.pause_2_time = timestamp
+                task.pause_2_reason = pause_reason
+            else:
                 current_app.logger.warning(f"Task {task_id} has already been paused twice")
                 return jsonify({'success': False, 'message': 'Esta tarea ya ha sido pausada dos veces'}), 400
-            else:
-                current_app.logger.error(f"Failed to update task {task_id}")
-                return jsonify({'success': False, 'message': 'Error al pausar la tarea'}), 500
+            
+            db.session.commit()
+            current_app.logger.info(f"Task {task_id} paused successfully")
+            print(f"DEBUG: Task paused - ID: {task_id}, Timestamp: {timestamp}, Reason: {pause_reason}")
+            
+            return jsonify({'success': True, 'message': 'Tarea pausada con éxito'})
         else:
             current_app.logger.error(f"Task not found or does not belong to the current user: {task_id}")
             return jsonify({'success': False, 'message': 'Tarea no encontrada o no pertenece al usuario actual'}), 404
