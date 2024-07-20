@@ -142,7 +142,7 @@ def start_new_task():
             flash('Ya tiene una tarea activa. Por favor, finalícela o páusela antes de iniciar una nueva.', 'warning')
             return redirect(url_for('main.dashboard'))
         
-        projects_data = {project: projects[project] for project in projects}
+        projects_data = {project: current_app.projects[project] for project in current_app.projects}
         
         # Get the most frequent tasks for the user
         user_tasks = Task.get_user_tasks(user['number'])
@@ -220,8 +220,8 @@ def start_new_task():
         last_house_number = session.get('last_house_number', '')
         last_n_modulo = session.get('last_n_modulo', '')
         
-        all_activities = [activity for specialty_activities in activities.values() for activity in specialty_activities]
-        user_activities = activities.get(user['specialty'], [])
+        all_activities = [activity for specialty_activities in current_app.activities.values() for activity in specialty_activities]
+        user_activities = current_app.activities.get(user['specialty'], [])
         other_activities = list(set(all_activities) - set(user_activities))
         
         # Get the number of modules for the last selected project
