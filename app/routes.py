@@ -273,13 +273,9 @@ def pause_task():
     
     timestamp = format_timestamp()
     try:
-        task = Task.query.get(int(task_id))
+        task = Task.query.filter_by(id=task_id, worker_number=session['user']['number']).first()
         if task:
-            if str(task.worker_number) != str(session['user']['number']):
-                current_app.logger.error(f"Task {task_id} does not belong to the current user")
-                return jsonify({'success': False, 'message': 'Esta tarea no pertenece al usuario actual'}), 403
-            
-            updated_task = Task.update_task(int(task_id), 'Paused', timestamp, pause_reason)
+            updated_task = Task.update_task(task.id, 'Paused', timestamp, pause_reason)
             if updated_task:
                 current_app.logger.info(f"Task {task_id} paused successfully")
                 return jsonify({'success': True, 'message': 'Tarea pausada con éxito'})
@@ -290,15 +286,12 @@ def pause_task():
                 current_app.logger.error(f"Failed to update task {task_id}")
                 return jsonify({'success': False, 'message': 'Error al pausar la tarea'}), 500
         else:
-            current_app.logger.error(f"Task not found: {task_id}")
-            return jsonify({'success': False, 'message': 'Tarea no encontrada'}), 404
+            current_app.logger.error(f"Task not found or does not belong to the current user: {task_id}")
+            return jsonify({'success': False, 'message': 'Tarea no encontrada o no pertenece al usuario actual'}), 404
     except SQLAlchemyError as e:
         db.session.rollback()
         current_app.logger.error(f"SQLAlchemy error pausing task: {str(e)}")
         return jsonify({'success': False, 'message': f'Error al pausar la tarea: {str(e)}'}), 500
-    except ValueError as e:
-        current_app.logger.error(f"Invalid task_id: {task_id}")
-        return jsonify({'success': False, 'message': 'ID de tarea inválido'}), 400
 
 @bp.route('/resume_task', methods=['POST'])
 def resume_task():
