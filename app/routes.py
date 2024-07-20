@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, jsonify, flash, current_app
 from app.models import Task, SQLAlchemyError
-from app.utils import format_timestamp
+from app.utils import format_timestamp, parse_timestamp
 from app.database import db
 import uuid
 from collections import Counter
@@ -269,7 +269,7 @@ def pause_task():
     }
     pause_reason = pause_reason_map.get(pause_type, "")
     
-    timestamp = format_timestamp()
+    timestamp = parse_timestamp(format_timestamp())
     
     try:
         task = Task.get_task_by_id(task_id)
