@@ -266,7 +266,7 @@ def pause_task():
     
     timestamp = format_timestamp()
     try:
-        task = Task.query.get(task_id)
+        task = Task.query.get(int(task_id))
         if task:
             if str(task.worker_number) != str(session['user']['number']):
                 current_app.logger.error(f"Task {task_id} does not belong to the current user")

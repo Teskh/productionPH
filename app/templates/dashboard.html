@@ -205,6 +205,31 @@
         pauseOptionsModal.show();
     }
 
+    function submitPauseForm() {
+        const form = document.getElementById('pauseForm');
+        const formData = new FormData(form);
+        const taskId = form.getAttribute('data-task-id');
+        formData.append('task_id', taskId);
+        
+        fetch(form.action, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showMessage(data.message, 'success');
+                location.reload();
+            } else {
+                showMessage(data.message, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showMessage('Error al pausar la tarea', 'danger');
+        });
+    }
+
     function showCommentModal(taskId) {
         document.getElementById('commentTaskId').value = taskId;
         var commentModal = new bootstrap.Modal(document.getElementById('commentModal'));
