@@ -364,6 +364,9 @@ def finish_task():
 
     if not task_id:
         current_app.logger.error("No task_id provided in the form data")
+        current_app.logger.error(f"Request method: {request.method}")
+        current_app.logger.error(f"Request headers: {request.headers}")
+        current_app.logger.error(f"Request form: {request.form}")
         flash('No se proporcionó un ID de tarea válido', 'danger')
         return redirect(url_for('main.dashboard'))
 
