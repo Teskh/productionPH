@@ -205,6 +205,10 @@
         pauseOptionsModal.show();
     }
 
+    function debugPauseTask(taskId) {
+        console.log('Debug: Pause task called for task ID:', taskId);
+    }
+
     function submitPauseForm() {
         const form = document.getElementById('pauseForm');
         const formData = new FormData(form);
