@@ -40,8 +40,8 @@ def index():
 
 @bp.route('/get_workers/<supervisor>')
 def get_workers(supervisor):
-    workers_list = supervisors.get(supervisor, [])
-    return jsonify(workers_list)
+    workers_list = current_app.supervisors.get(supervisor, [])
+    return jsonify({'workers': workers_list})
 
 @bp.route('/submit', methods=['POST'])
 def submit():
