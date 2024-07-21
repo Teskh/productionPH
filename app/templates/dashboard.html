@@ -64,7 +64,7 @@
                             <button class="btn btn-warning btn-sm action-button text-white rounded" onclick="debugPauseTask('{{ active_task.id }}'); showPauseOptions('{{ active_task.id }}')">Pausar</button>
                             <button class="btn btn-primary btn-sm action-button text-white rounded" onclick="finishTask('{{ active_task.id }}')">Finalizar</button>
                             <button class="btn btn-info btn-sm action-button text-white rounded" onclick="showCommentModal('{{ active_task.id }}')">
-                                <img src="{{ url_for('static', filename='images/comment.png') }}" alt="Comment" style="width: 16px; height: 16px;">
+                                <img src="{{ url_for('static', filename='images/comment.png') }}" alt="Comment" style="width: 16px; height: 16px; filter: invert(1);">
                             </button>
                         </div>
                     </td>
