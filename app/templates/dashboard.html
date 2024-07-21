@@ -178,7 +178,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="commentForm">
+                <form id="commentForm" action="{{ url_for('main.add_comment') }}" method="post">
                     <input type="hidden" id="commentTaskId" name="task_id" value="">
                     <div class="mb-3">
                         <label for="comment" class="form-label">Comentario:</label>
@@ -236,6 +236,7 @@
     }
 
     function showCommentModal(taskId) {
+        console.log('Showing comment modal for task ID:', taskId);
         document.getElementById('commentTaskId').value = taskId;
         var commentModal = new bootstrap.Modal(document.getElementById('commentModal'));
         commentModal.show();
@@ -244,7 +245,12 @@
     document.getElementById('commentForm').addEventListener('submit', function(e) {
         e.preventDefault();
         var formData = new FormData(this);
-        fetch("{{ url_for('main.add_comment') }}", {
+        var taskId = document.getElementById('commentTaskId').value;
+        formData.set('task_id', taskId);
+        
+        console.log('Form data before submission:', Object.fromEntries(formData));
+        
+        fetch(this.action, {
             method: 'POST',
             body: formData
         })
