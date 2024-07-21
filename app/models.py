@@ -203,7 +203,7 @@ class Task(db.Model):
         related_tasks = Task.get_related_active_tasks(project, house_number, n_modulo, activity)
         for task in related_tasks:
             task.status = 'Finished'
-            task.end_time = timestamp
+            task.end_time = datetime.strptime(timestamp, '%Y-%m-%d %H:%M') if isinstance(timestamp, str) else timestamp
             task.station_f = station
         db.session.commit()
         return related_tasks

@@ -360,7 +360,7 @@ def finish_task():
         return jsonify({'success': False, 'message': 'Usuario no autenticado'}), 401
 
     task_id = request.form.get('task_id')
-    timestamp = format_timestamp()
+    timestamp = datetime.now()
     station = session.get('station')
 
     current_app.logger.debug(f"Attempting to finish task with ID: {task_id}")
