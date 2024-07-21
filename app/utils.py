@@ -1,5 +1,4 @@
 from datetime import datetime
-from app.models import Task
 from app.database import db
 import pandas as pd
 from sqlalchemy.exc import SQLAlchemyError
