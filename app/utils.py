@@ -14,6 +14,7 @@ def parse_timestamp(timestamp_str):
     return datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M')
 
 def get_task_summary(start_date, end_date):
+    from app.models import Task  # Import Task here to avoid circular import
     try:
         tasks = Task.query.filter(
             Task.start_time >= start_date,
