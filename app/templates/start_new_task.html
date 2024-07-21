@@ -179,22 +179,39 @@
         $('.frequent-task-btn').click(function() {
             $('#activity').val($(this).data('activity'));
             // Trigger form submission
-            $('form').submit();
+            submitForm();
         });
 
-        // Prevent default form submission
+        // Prevent default form submission and handle it via AJAX
         $('form').submit(function(e) {
             e.preventDefault();
-            
+            submitForm();
+        });
+
+        function submitForm() {
             // Validate form
-            if (this.checkValidity()) {
-                // If form is valid, submit it
-                this.submit();
+            if ($('form')[0].checkValidity()) {
+                // If form is valid, submit it via AJAX
+                $.ajax({
+                    url: "{{ url_for('main.start_new_task') }}",
+                    type: "POST",
+                    data: $('form').serialize(),
+                    success: function(response) {
+                        if (response.success) {
+                            window.location.href = "{{ url_for('main.dashboard') }}";
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function() {
+                        alert("An error occurred. Please try again.");
+                    }
+                });
             } else {
                 // If form is invalid, show validation messages
-                $(this).addClass('was-validated');
+                $('form').addClass('was-validated');
             }
-        });
+        }
 
         // Trigger the project change event on page load to set the initial state
         $('input[name="project"]:checked').change();
