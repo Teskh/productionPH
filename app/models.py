@@ -25,7 +25,6 @@ class Task(db.Model):
     pause_2_reason = db.Column(db.String(200))
     resume_2_time = db.Column(db.DateTime)
     end_time = db.Column(db.DateTime)
-    comment = db.Column(db.Text)
 
     def __repr__(self):
         return f'<Task {self.id} - {self.worker_name} - {self.activity}>'
@@ -178,19 +177,6 @@ class Task(db.Model):
             current_app.logger.error(f"No task found with ID: {task_id}")
         return task
 
-    @staticmethod
-    def add_comment(task_id, comment):
-        try:
-            task = Task.query.get(task_id)
-            if task:
-                task.comment = comment
-                db.session.commit()
-                return True
-            return False
-        except SQLAlchemyError as e:
-            db.session.rollback()
-            print(f"Error adding comment: {str(e)}")
-            return False
 
     @staticmethod
     def get_finished_task(project, house_number, n_modulo, activity):

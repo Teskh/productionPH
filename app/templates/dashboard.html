@@ -61,9 +61,6 @@
                     </td>
                     <td>
                         <div class="action-buttons">
-                            <button class="btn btn-info btn-sm action-button text-white rounded comment-btn" onclick="showCommentModal('{{ active_task.task_id }}')">
-                                <img src="{{ url_for('static', filename='images/comment.png') }}" alt="Comentar" class="comment-icon">
-                            </button>
                             <button class="btn btn-warning btn-sm action-button text-white rounded" onclick="debugPauseTask('{{ active_task.id }}'); showPauseOptions('{{ active_task.id }}')">Pausar</button>
                             <button class="btn btn-primary btn-sm action-button text-white rounded" onclick="finishTask('{{ active_task.id }}')">Finalizar</button>
                         </div>
@@ -169,30 +166,6 @@
     </div>
 </div>
 
-<!-- Modal for comments -->
-<div class="modal fade" id="commentModal" tabindex="-1" aria-labelledby="commentModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="commentModalLabel">Agregar Comentario</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="commentForm" action="{{ url_for('main.add_comment') }}" method="post">
-                    <input type="hidden" id="commentTaskId" name="task_id" value="">
-                    <div class="mb-3">
-                        <label for="comment" class="form-label">Comentario:</label>
-                        <textarea class="form-control" id="comment" name="comment" rows="3" required></textarea>
-                    </div>
-                    <div class="d-flex justify-content-end">
-                        <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Dejar comentario</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block extra_js %}
@@ -235,40 +208,6 @@
         });
     }
 
-    function showCommentModal(taskId) {
-           console.log('Opening comment modal for task ID:', taskId);
-           document.getElementById('commentTaskId').value = taskId;
-           var commentModal = new bootstrap.Modal(document.getElementById('commentModal'));
-           commentModal.show();
-       }
-
-    document.getElementById('commentForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        var formData = new FormData(this);
-        var taskId = document.getElementById('commentTaskId').value;
-        formData.set('task_id', taskId);
-        
-        console.log('Form data before submission:', Object.fromEntries(formData));
-        console.log('Task ID:', taskId);
-        
-        fetch(this.action, {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showMessage(data.message, 'success');
-                bootstrap.Modal.getInstance(document.getElementById('commentModal')).hide();
-            } else {
-                showMessage(data.message, 'danger');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showMessage('Error al agregar comentario', 'danger');
-        });
-    });
 
     document.querySelectorAll('.pause-reason-btn').forEach(button => {
         button.addEventListener('click', function() {
