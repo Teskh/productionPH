@@ -451,8 +451,11 @@ def add_comment():
     if 'user' not in session:
         return jsonify({'success': False, 'message': 'Usuario no autenticado'}), 401
     
+    current_app.logger.debug(f"Received form data: {request.form}")
     task_id = request.form.get('task_id')
     comment = request.form.get('comment')
+    
+    current_app.logger.debug(f"Extracted task_id: {task_id}, comment: {comment}")
     
     if not task_id or not comment:
         current_app.logger.error(f"Incomplete data: task_id={task_id}, comment={comment}")

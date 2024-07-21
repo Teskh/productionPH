@@ -249,6 +249,7 @@
         formData.set('task_id', taskId);
         
         console.log('Form data before submission:', Object.fromEntries(formData));
+        console.log('Task ID:', taskId);
         
         fetch(this.action, {
             method: 'POST',
