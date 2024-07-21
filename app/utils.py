@@ -8,6 +8,9 @@ import time
 def format_timestamp():
     return datetime.now().strftime('%Y-%m-%d %H:%M')
 
+def format_datetime(dt):
+    return dt.strftime('%Y-%m-%d %H:%M') if dt else None
+
 def parse_timestamp(timestamp_str):
     return datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M')
 

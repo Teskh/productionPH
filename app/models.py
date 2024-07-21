@@ -2,6 +2,7 @@ from datetime import datetime
 from .database import db
 from sqlalchemy.exc import SQLAlchemyError
 from flask import current_app
+from .utils import format_datetime
 
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -52,7 +53,7 @@ class Task(db.Model):
                 house=house,
                 module=module,
                 activity=activity,
-                start_time=datetime.now(),
+                start_time=datetime.now().replace(second=0, microsecond=0),
                 status='en proceso',
                 station_i=station_i,
                 line=line
@@ -145,7 +146,7 @@ class Task(db.Model):
     def to_dict(self):
         return {
             'id': self.id,
-            'start_time': self.start_time,
+            'start_time': format_datetime(self.start_time),
             'worker_number': self.worker_number,
             'supervisor': self.supervisor,
             'worker_name': self.worker_name,
@@ -158,13 +159,13 @@ class Task(db.Model):
             'station_i': self.station_i,
             'station_f': self.station_f,
             'line': self.line,
-            'pause_1_time': self.pause_1_time,
+            'pause_1_time': format_datetime(self.pause_1_time),
             'pause_1_reason': self.pause_1_reason,
-            'resume_1_time': self.resume_1_time,
-            'pause_2_time': self.pause_2_time,
+            'resume_1_time': format_datetime(self.resume_1_time),
+            'pause_2_time': format_datetime(self.pause_2_time),
             'pause_2_reason': self.pause_2_reason,
-            'resume_2_time': self.resume_2_time,
-            'end_time': self.end_time
+            'resume_2_time': format_datetime(self.resume_2_time),
+            'end_time': format_datetime(self.end_time)
         }
 
     @staticmethod
