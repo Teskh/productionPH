@@ -163,8 +163,7 @@ class Task(db.Model):
             'pause_2_time': self.pause_2_time,
             'pause_2_reason': self.pause_2_reason,
             'resume_2_time': self.resume_2_time,
-            'end_time': self.end_time,
-            'comment': self.comment
+            'end_time': self.end_time
         }
 
     @staticmethod
