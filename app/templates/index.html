@@ -78,14 +78,25 @@
             workerSelect.empty().append('<option value="">Seleccionar Colaborador</option>');
 
             if (supervisor) {
-                $.getJSON("{{ url_for('main.get_workers', supervisor='') }}" + supervisor, function(workers) {
-                    $.each(workers, function(index, worker) {
+                $.getJSON("{{ url_for('main.get_workers', supervisor='') }}" + supervisor, function(data) {
+                    $.each(data.workers, function(index, worker) {
                         workerSelect.append($('<option></option>').val(worker).text(worker));
                     });
                     workerSelect.prop('disabled', false);
                 });
             } else {
                 workerSelect.prop('disabled', true);
+            }
+        });
+
+        $('#workerSelect').change(function() {
+            if ($(this).val()) {
+                $('#identificationMethod').val('supervisor');
+                $('#hiddenSupervisor').val($('#supervisorSelect').val());
+                $('#hiddenWorkerName').val($(this).val());
+                $('#hiddenLine').val('{{ line }}');
+                $('#hiddenStation').val('{{ station }}');
+                $('#loginForm').submit();
             }
         });
 
