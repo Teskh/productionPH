@@ -139,8 +139,7 @@ def start_new_task():
     try:
         active_tasks = Task.get_active_tasks(user['number'])
         if any(task.status == 'en proceso' for task in active_tasks):
-            flash('Ya tiene una tarea activa. Por favor, finalícela o páusela antes de iniciar una nueva.', 'warning')
-            return redirect(url_for('main.dashboard'))
+            return jsonify({'success': False, 'message': 'Ya tiene una tarea activa. Por favor, finalícela o páusela antes de iniciar una nueva.'})
         
         projects_data = {project: current_app.projects[project] for project in current_app.projects}
         
@@ -164,36 +163,12 @@ def start_new_task():
                                   str(task.module) == str(n_modulo)), None)
             
             if existing_task:
-                flash('Ya iniciaste esta tarea para este módulo', 'warning')
-                return render_template('start_new_task.html', 
-                                       user=user, 
-                                       projects=projects_data, 
-                                       activities=activities,
-                                       user_specialty=user['specialty'],
-                                       line=session.get('line', 'L1'),
-                                       station_i=session.get('station', 1),
-                                       last_project=project,
-                                       last_house_number=house_number,
-                                       last_n_modulo=n_modulo,
-                                       frequent_tasks=frequent_tasks,
-                                       num_modulos=projects_data[project]['num_modulos'])
+                return jsonify({'success': False, 'message': 'Ya iniciaste esta tarea para este módulo'})
             
             # Check for finished tasks
             finished_task = Task.get_finished_task(project, house_number, n_modulo, activity)
             if finished_task:
-                flash('Esta tarea ya ha sido realizada para este módulo', 'warning')
-                return render_template('start_new_task.html', 
-                                       user=user, 
-                                       projects=projects_data, 
-                                       activities=activities,
-                                       user_specialty=user['specialty'],
-                                       line=session.get('line', 'L1'),
-                                       station_i=session.get('station', 1),
-                                       last_project=project,
-                                       last_house_number=house_number,
-                                       last_n_modulo=n_modulo,
-                                       frequent_tasks=frequent_tasks,
-                                       num_modulos=projects_data[project]['num_modulos'])
+                return jsonify({'success': False, 'message': 'Esta tarea ya ha sido realizada para este módulo'})
             
             session['last_project'] = project
             session['last_house_number'] = house_number
@@ -213,14 +188,13 @@ def start_new_task():
             
                 if new_task:
                     current_app.logger.info(f"New task created successfully: {new_task.to_dict()}")
-                    flash('Nueva tarea iniciada con éxito', 'success')
-                    return redirect(url_for('main.dashboard'))
+                    return jsonify({'success': True, 'message': 'Nueva tarea iniciada con éxito'})
                 else:
                     current_app.logger.error("Task.add_task returned None")
-                    flash('Error al iniciar la tarea: La función add_task devolvió None', 'danger')
+                    return jsonify({'success': False, 'message': 'Error al iniciar la tarea: La función add_task devolvió None'})
             except Exception as e:
                 current_app.logger.error(f"Error creating new task: {str(e)}")
-                flash(f'Error al iniciar la tarea: {str(e)}', 'danger')
+                return jsonify({'success': False, 'message': f'Error al iniciar la tarea: {str(e)}'})
         
         last_project = session.get('last_project', '')
         last_house_number = session.get('last_house_number', '')
@@ -247,8 +221,7 @@ def start_new_task():
                                num_modulos=num_modulos)
     except SQLAlchemyError as e:
         db.session.rollback()
-        flash(f'Error al iniciar la tarea: {str(e)}', 'danger')
-        return redirect(url_for('main.dashboard'))
+        return jsonify({'success': False, 'message': f'Error al iniciar la tarea: {str(e)}'})
 
 @bp.route('/pause_task', methods=['POST'])
 def pause_task():
