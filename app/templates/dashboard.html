@@ -236,11 +236,11 @@
     }
 
     function showCommentModal(taskId) {
-        console.log('Showing comment modal for task ID:', taskId);
-        document.getElementById('commentTaskId').value = taskId;
-        var commentModal = new bootstrap.Modal(document.getElementById('commentModal'));
-        commentModal.show();
-    }
+           console.log('Opening comment modal for task ID:', taskId);
+           document.getElementById('commentTaskId').value = taskId;
+           var commentModal = new bootstrap.Modal(document.getElementById('commentModal'));
+           commentModal.show();
+       }
 
     document.getElementById('commentForm').addEventListener('submit', function(e) {
         e.preventDefault();
