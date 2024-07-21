@@ -187,3 +187,23 @@ class Task(db.Model):
             activity=activity,
             status='Finished'
         ).first()
+
+    @staticmethod
+    def get_related_active_tasks(project, house_number, n_modulo, activity):
+        return Task.query.filter(
+            Task.project == project,
+            Task.house == house_number,
+            Task.module == n_modulo,
+            Task.activity == activity,
+            Task.status.in_(['en proceso', 'Paused'])
+        ).all()
+
+    @staticmethod
+    def finish_related_tasks(project, house_number, n_modulo, activity, timestamp, station):
+        related_tasks = Task.get_related_active_tasks(project, house_number, n_modulo, activity)
+        for task in related_tasks:
+            task.status = 'Finished'
+            task.end_time = timestamp
+            task.station_f = station
+        db.session.commit()
+        return related_tasks

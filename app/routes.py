@@ -385,13 +385,19 @@ def finish_task():
             current_app.logger.warning(f"Task {task_id} is not in a valid state to be finished")
             return jsonify({'success': False, 'message': 'Esta tarea no está en un estado válido para ser finalizada'}), 400
 
-        result = Task.finish_task(task_id, timestamp, station)
-        if result:
-            current_app.logger.info(f"Successfully finished task {task_id} - Project: {task.project}, House: {task.house}, Module: {task.module}, Activity: {task.activity}")
-            return jsonify({'success': True, 'message': 'Tarea finalizada con éxito'})
+        related_tasks = Task.get_related_active_tasks(task.project, task.house, task.module, task.activity)
+        if len(related_tasks) > 1:
+            active_tasks = [t for t in related_tasks if t.status == 'en proceso']
+            if len(active_tasks) > 1:
+                return jsonify({'success': False, 'message': 'No se puede finalizar la tarea porque hay otra persona trabajando en la misma tarea. Debe pausar su tarea primero.'}), 400
+
+        finished_tasks = Task.finish_related_tasks(task.project, task.house, task.module, task.activity, timestamp, station)
+        if finished_tasks:
+            current_app.logger.info(f"Successfully finished related tasks for Project: {task.project}, House: {task.house}, Module: {task.module}, Activity: {task.activity}")
+            return jsonify({'success': True, 'message': 'Tarea(s) finalizada(s) con éxito'})
         else:
-            current_app.logger.error(f"Failed to finish task {task_id}")
-            return jsonify({'success': False, 'message': 'Error al finalizar la tarea'}), 500
+            current_app.logger.error(f"Failed to finish related tasks for task {task_id}")
+            return jsonify({'success': False, 'message': 'Error al finalizar la(s) tarea(s)'}), 500
     except SQLAlchemyError as e:
         db.session.rollback()
         current_app.logger.error(f"SQLAlchemy error finishing task: {str(e)}")
