@@ -63,6 +63,9 @@
                         <div class="action-buttons">
                             <button class="btn btn-warning btn-sm action-button text-white rounded" onclick="debugPauseTask('{{ active_task.id }}'); showPauseOptions('{{ active_task.id }}')">Pausar</button>
                             <button class="btn btn-primary btn-sm action-button text-white rounded" onclick="finishTask('{{ active_task.id }}')">Finalizar</button>
+                            <button class="btn btn-info btn-sm action-button text-white rounded" onclick="showCommentModal('{{ active_task.id }}')">
+                                <img src="{{ url_for('static', filename='images/comment.png') }}" alt="Comment" style="width: 16px; height: 16px;">
+                            </button>
                         </div>
                     </td>
                 </tr>
@@ -304,5 +307,65 @@
         });
     }
 
+</script>
+
+<!-- Comment Modal -->
+<div class="modal fade" id="commentModal" tabindex="-1" aria-labelledby="commentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="commentModalLabel">Dejar un comentario</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="commentForm">
+                    <input type="hidden" id="commentTaskId" name="task_id">
+                    <div class="mb-3">
+                        <label for="commentText" class="form-label">Comentario:</label>
+                        <textarea class="form-control" id="commentText" name="comment" rows="3" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="submitComment()">Dejar comentario</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showCommentModal(taskId) {
+    document.getElementById('commentTaskId').value = taskId;
+    var commentModal = new bootstrap.Modal(document.getElementById('commentModal'));
+    commentModal.show();
+}
+
+function submitComment() {
+    var taskId = document.getElementById('commentTaskId').value;
+    var comment = document.getElementById('commentText').value;
+    
+    fetch("{{ url_for('main.add_comment') }}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'task_id=' + encodeURIComponent(taskId) + '&comment=' + encodeURIComponent(comment)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showMessage(data.message, 'success');
+            var commentModal = bootstrap.Modal.getInstance(document.getElementById('commentModal'));
+            commentModal.hide();
+        } else {
+            showMessage(data.message, 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showMessage('Error al agregar el comentario', 'danger');
+    });
+}
 </script>
 {% endblock %}

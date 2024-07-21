@@ -427,6 +427,45 @@ def finish_task():
         current_app.logger.error(f"Unexpected error finishing task: {str(e)}")
         return jsonify({'success': False, 'message': f'Error inesperado al finalizar la tarea: {str(e)}'}), 500
 
+@bp.route('/add_comment', methods=['POST'])
+def add_comment():
+    if 'user' not in session:
+        current_app.logger.warning("User not in session")
+        return jsonify({'success': False, 'message': 'Usuario no autenticado'}), 401
+
+    task_id = request.form.get('task_id')
+    comment = request.form.get('comment')
+
+    current_app.logger.debug(f"Attempting to add comment to task with ID: {task_id}")
+    current_app.logger.debug(f"Comment: {comment}")
+
+    if not task_id or not comment:
+        current_app.logger.error("No task_id or comment provided in the form data")
+        return jsonify({'success': False, 'message': 'No se proporcionó un ID de tarea válido o un comentario'}), 400
+
+    try:
+        task = Task.get_task_by_id(task_id)
+        if not task:
+            current_app.logger.error(f"Task with ID {task_id} not found in the database")
+            return jsonify({'success': False, 'message': 'Tarea no encontrada en la base de datos'}), 404
+
+        if str(task.worker_number) != str(session['user']['number']):
+            current_app.logger.error(f"Task {task_id} does not belong to the current user")
+            return jsonify({'success': False, 'message': 'Esta tarea no pertenece al usuario actual'}), 403
+
+        task.comment = comment
+        db.session.commit()
+
+        current_app.logger.info(f"Successfully added comment to task {task_id}")
+        return jsonify({'success': True, 'message': 'Comentario agregado con éxito'})
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        current_app.logger.error(f"SQLAlchemy error adding comment: {str(e)}")
+        return jsonify({'success': False, 'message': f'Error al agregar el comentario: {str(e)}'}), 500
+    except Exception as e:
+        current_app.logger.error(f"Unexpected error adding comment: {str(e)}")
+        return jsonify({'success': False, 'message': f'Error inesperado al agregar el comentario: {str(e)}'}), 500
+
 @bp.route('/get_project_details/<project>')
 def get_project_details(project):
     project_details = projects.get(project, {})

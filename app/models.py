@@ -25,6 +25,7 @@ class Task(db.Model):
     pause_2_reason = db.Column(db.String(200))
     resume_2_time = db.Column(db.DateTime)
     end_time = db.Column(db.DateTime)
+    comment = db.Column(db.Text)
 
     def __repr__(self):
         return f'<Task {self.id} - {self.worker_name} - {self.activity}>'
