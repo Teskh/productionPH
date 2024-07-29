@@ -4,10 +4,14 @@ from app.scheduled_tasks import pause_active_tasks
 from .database import db
 from .data_manager import load_activity_data, load_project_data, load_worker_data
 from config import config
+import os
 
 def create_app(config_name='default'):
     app = Flask(__name__, static_folder='static', template_folder='templates')
     app.config.from_object(config[config_name])
+
+    # Set a secret key
+    app.secret_key = os.environ.get('SECRET_KEY') or 'you-will-never-guess'
 
     # Initialize SQLAlchemy
     db.init_app(app)
