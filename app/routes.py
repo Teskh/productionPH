@@ -287,7 +287,8 @@ def pause_task():
         
         # Validate the data after the commit
         updated_task = Task.get_task_by_id(task_id)
-        if updated_task.pause_1_time != timestamp or updated_task.pause_1_reason != pause_reason:
+        if (task.pause_1_time and updated_task.pause_1_time != task.pause_1_time) or \
+           (task.pause_2_time and updated_task.pause_2_time != task.pause_2_time):
             current_app.logger.error(f"Pause time and reason were not correctly written to the database for task {task_id}")
             flash('Error al guardar la información de pausa en la base de datos', 'danger')
             return redirect(url_for('main.dashboard'))
