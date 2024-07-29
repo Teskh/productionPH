@@ -31,8 +31,8 @@ def index():
     if 'user' in session:
         return redirect(url_for('main.dashboard'))
     
-    line = 'L1'
-    station = 1
+    line = session.get('line', 'L1')
+    station = session.get('station', 1)
     
     error = request.args.get('error')
     return render_template('index.html', supervisors=current_app.supervisors.keys(), line=line, station=station, error=error)

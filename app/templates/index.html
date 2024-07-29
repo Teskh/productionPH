@@ -11,8 +11,8 @@
 <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Patagual Home Logo" class="logo">
 
 <div class="info-box">
-    <div>Línea: <span class="line-station">{{ line }}</span></div>
-    <div>Estación: <span class="line-station">{{ station }}</span></div>
+    <div>Línea: <span class="line-station">{{ session.get('line', 'L1') }}</span></div>
+    <div>Estación: <span class="line-station">{{ session.get('station', 1) }}</span></div>
 </div>
 
 <h1 class="index-title">Ingreso de Colaborador</h1>
