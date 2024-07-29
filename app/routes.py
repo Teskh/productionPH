@@ -134,22 +134,15 @@ def dashboard():
 @bp.route('/start_new_task', methods=['GET', 'POST'])
 def start_new_task():
     if 'user' not in session:
-        return redirect(url_for('main.index'))
+        return jsonify({'success': False, 'message': 'Usuario no autenticado'}), 401
     user = session['user']
     
     try:
-        active_tasks = Task.get_active_tasks(user['number'])
-        if any(task.status == 'en proceso' for task in active_tasks):
-            return jsonify({'success': False, 'message': 'Ya tiene una tarea activa. Por favor, finalícela o páusela antes de iniciar una nueva.'})
-        
-        projects_data = {project: current_app.projects[project] for project in current_app.projects}
-        
-        # Get the most frequent tasks for the user
-        user_tasks = Task.get_user_tasks(user['number'])
-        task_counter = Counter(task.activity for task in user_tasks)
-        frequent_tasks = [task for task, count in task_counter.most_common(3) if count >= 2]
-
         if request.method == 'POST':
+            active_tasks = Task.get_active_tasks(user['number'])
+            if any(task.status == 'en proceso' for task in active_tasks):
+                return jsonify({'success': False, 'message': 'Ya tiene una tarea activa. Por favor, finalícela o páusela antes de iniciar una nueva.'})
+            
             project = request.form['project']
             house_number = request.form['house_number']
             n_modulo = request.form['n_modulo']
@@ -196,33 +189,40 @@ def start_new_task():
             except Exception as e:
                 current_app.logger.error(f"Error creating new task: {str(e)}")
                 return jsonify({'success': False, 'message': f'Error al iniciar la tarea: {str(e)}'})
-        
-        last_project = session.get('last_project', '')
-        last_house_number = session.get('last_house_number', '')
-        last_n_modulo = session.get('last_n_modulo', '')
-        
-        all_activities = [activity for specialty_activities in current_app.activities.values() for activity in specialty_activities]
-        user_activities = current_app.activities.get(user['specialty'], [])
-        other_activities = list(set(all_activities) - set(user_activities))
-        
-        # Get the number of modules for the last selected project
-        num_modulos = projects_data.get(last_project, {}).get('num_modulos', 1) if last_project else 1
-        
-        return render_template('start_new_task.html', 
-                               user=user, 
-                               projects=projects_data, 
-                               activities=current_app.activities,
-                               user_specialty=user['specialty'],
-                               line=session.get('line', 'L1'),
-                               station_i=session.get('station', 1),
-                               last_project=last_project,
-                               last_house_number=last_house_number,
-                               last_n_modulo=last_n_modulo,
-                               frequent_tasks=frequent_tasks,
-                               num_modulos=num_modulos)
+        else:
+            projects_data = {project: current_app.projects[project] for project in current_app.projects}
+            
+            # Get the most frequent tasks for the user
+            user_tasks = Task.get_user_tasks(user['number'])
+            task_counter = Counter(task.activity for task in user_tasks)
+            frequent_tasks = [task for task, count in task_counter.most_common(3) if count >= 2]
+            
+            last_project = session.get('last_project', '')
+            last_house_number = session.get('last_house_number', '')
+            last_n_modulo = session.get('last_n_modulo', '')
+            
+            all_activities = [activity for specialty_activities in current_app.activities.values() for activity in specialty_activities]
+            user_activities = current_app.activities.get(user['specialty'], [])
+            other_activities = list(set(all_activities) - set(user_activities))
+            
+            # Get the number of modules for the last selected project
+            num_modulos = projects_data.get(last_project, {}).get('num_modulos', 1) if last_project else 1
+            
+            return render_template('start_new_task.html', 
+                                   user=user, 
+                                   projects=projects_data, 
+                                   activities=current_app.activities,
+                                   user_specialty=user['specialty'],
+                                   line=session.get('line', 'L1'),
+                                   station_i=session.get('station', 1),
+                                   last_project=last_project,
+                                   last_house_number=last_house_number,
+                                   last_n_modulo=last_n_modulo,
+                                   frequent_tasks=frequent_tasks,
+                                   num_modulos=num_modulos)
     except SQLAlchemyError as e:
         db.session.rollback()
-        return jsonify({'success': False, 'message': f'Error al iniciar la tarea: {str(e)}'})
+        return jsonify({'success': False, 'message': f'Error al iniciar la tarea: {str(e)}'}), 500
 
 @bp.route('/pause_task', methods=['POST'])
 def pause_task():

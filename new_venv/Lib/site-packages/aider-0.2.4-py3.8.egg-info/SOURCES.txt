@@ -1,0 +1,13 @@
+MANIFEST.in
+README.rst
+requirements.txt
+setup.cfg
+setup.py
+aider/__init__.py
+aider.egg-info/PKG-INFO
+aider.egg-info/SOURCES.txt
+aider.egg-info/dependency_links.txt
+aider.egg-info/requires.txt
+aider.egg-info/top_level.txt
+aider/config/__init__.py
+aider/log/__init__.py
