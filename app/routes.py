@@ -31,13 +31,11 @@ def index():
     if 'user' in session:
         return redirect(url_for('main.dashboard'))
     
-    if 'line' not in session:
-        session['line'] = 'L1'
-    if 'station' not in session:
-        session['station'] = 1
+    line = 'L1'
+    station = 1
     
     error = request.args.get('error')
-    return render_template('index.html', supervisors=current_app.supervisors.keys(), line=session['line'], station=session['station'], error=error)
+    return render_template('index.html', supervisors=current_app.supervisors.keys(), line=line, station=station, error=error)
 
 @bp.route('/get_workers/<supervisor>')
 def get_workers(supervisor):
