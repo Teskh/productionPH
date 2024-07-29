@@ -226,7 +226,7 @@ def start_new_task():
 def pause_task():
     if 'user' not in session:
         current_app.logger.warning("User not in session, returning unauthorized")
-        return jsonify({'success': False, 'message': 'Usuario no autenticado'}), 401
+        return redirect(url_for('main.index'))
     
     task_id = request.form.get('task_id')
     pause_type = request.form.get('pause_type')
@@ -237,7 +237,8 @@ def pause_task():
     
     if not task_id:
         current_app.logger.error("No task_id provided in the form data")
-        return jsonify({'success': False, 'message': 'No se proporcionó ID de tarea'}), 400
+        flash('No se proporcionó ID de tarea', 'danger')
+        return redirect(url_for('main.dashboard'))
     
     pause_reason_map = {
         'end_of_day': "Final del día",
@@ -253,7 +254,8 @@ def pause_task():
         task = Task.get_task_by_id(task_id)
         if not task:
             current_app.logger.error(f"Task with ID {task_id} not found in the database")
-            return jsonify({'success': False, 'message': 'Tarea no encontrada en la base de datos'}), 404
+            flash('Tarea no encontrada en la base de datos', 'danger')
+            return redirect(url_for('main.dashboard'))
         
         current_app.logger.debug(f"Task found: {task.to_dict()}")
         current_app.logger.debug(f"Session user: {session['user']}")
@@ -261,11 +263,13 @@ def pause_task():
         if str(task.worker_number) != str(session['user']['number']):
             current_app.logger.error(f"Task {task_id} does not belong to the current user")
             current_app.logger.debug(f"Task worker number: {task.worker_number}, Session user number: {session['user']['number']}")
-            return jsonify({'success': False, 'message': 'Esta tarea no pertenece al usuario actual'}), 403
+            flash('Esta tarea no pertenece al usuario actual', 'danger')
+            return redirect(url_for('main.dashboard'))
         
         if task.status == 'Paused':
             current_app.logger.warning(f"Task {task_id} is already paused")
-            return jsonify({'success': False, 'message': 'Esta tarea ya está pausada'}), 400
+            flash('Esta tarea ya está pausada', 'warning')
+            return redirect(url_for('main.dashboard'))
         
         task.status = 'Paused'
         if not task.pause_1_time:
@@ -276,7 +280,8 @@ def pause_task():
             task.pause_2_reason = pause_reason
         else:
             current_app.logger.warning(f"Task {task_id} has already been paused twice")
-            return jsonify({'success': False, 'message': 'Esta tarea ya ha sido pausada dos veces'}), 400
+            flash('Esta tarea ya ha sido pausada dos veces', 'warning')
+            return redirect(url_for('main.dashboard'))
         
         db.session.commit()
         
@@ -284,12 +289,14 @@ def pause_task():
         updated_task = Task.get_task_by_id(task_id)
         if updated_task.pause_1_time != timestamp or updated_task.pause_1_reason != pause_reason:
             current_app.logger.error(f"Pause time and reason were not correctly written to the database for task {task_id}")
-            return jsonify({'success': False, 'message': 'Error al guardar la información de pausa en la base de datos'}), 500
+            flash('Error al guardar la información de pausa en la base de datos', 'danger')
+            return redirect(url_for('main.dashboard'))
         
         current_app.logger.info(f"Task {task_id} paused successfully")
         current_app.logger.debug(f"DEBUG: Task paused - ID: {task_id}, Timestamp: {timestamp}, Reason: {pause_reason}")
         
-        return jsonify({'success': True, 'message': 'Tarea pausada con éxito'})
+        flash('Tarea pausada con éxito', 'success')
+        return redirect(url_for('main.dashboard'))
     except SQLAlchemyError as e:
         db.session.rollback()
         current_app.logger.error(f"SQLAlchemy error pausing task: {str(e)}")
