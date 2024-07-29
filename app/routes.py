@@ -174,8 +174,8 @@ def start_new_task():
                     house=house_number,
                     module=n_modulo,
                     activity=activity,
-                    station_i=session['station'],
-                    line=session['line']
+                    station_i=session.get('station', 1),  # Use get() with a default value
+                    line=session.get('line', 'L1')  # Use get() with a default value
                 )
             
                 if new_task:

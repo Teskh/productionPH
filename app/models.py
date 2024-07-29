@@ -44,7 +44,9 @@ class Task(db.Model):
         return next((task for task in tasks if task.status == 'en proceso'), None)
 
     @staticmethod
-    def add_task(worker_number, worker_name, project, house, module, activity, station_i, line):
+    def add_task(worker_number, worker_name, project, house, module, activity, station_i=None, line=None):
+        station_i = station_i or 1  # Default to 1 if None
+        line = line or 'L1'  # Default to 'L1' if None
         try:
             new_task = Task(
                 worker_number=worker_number,
