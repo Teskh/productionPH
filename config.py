@@ -6,16 +6,10 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///' + os.path.join(basedir, 'production_data.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
-    # Excel file paths
-    ACTIVITY_DATA_PATH = os.environ.get('ACTIVITY_DATA_PATH')
-    PROJECT_DATA_PATH = os.environ.get('PROJECT_DATA_PATH')
-    WORKER_DATA_PATH = os.environ.get('WORKER_DATA_PATH')
-
-    # Ensure all required environment variables are set
-    required_env_vars = ['ACTIVITY_DATA_PATH', 'PROJECT_DATA_PATH', 'WORKER_DATA_PATH']
-    for var in required_env_vars:
-        if os.environ.get(var) is None:
-            raise ValueError(f"Environment variable {var} is not set")
+    # Excel file paths with default values
+    ACTIVITY_DATA_PATH = os.environ.get('ACTIVITY_DATA_PATH') or os.path.join(basedir, 'data', 'activity_data.xlsx')
+    PROJECT_DATA_PATH = os.environ.get('PROJECT_DATA_PATH') or os.path.join(basedir, 'data', 'project_data.xlsx')
+    WORKER_DATA_PATH = os.environ.get('WORKER_DATA_PATH') or os.path.join(basedir, 'data', 'worker_data.xlsx')
 
 class DevelopmentConfig(Config):
     DEBUG = True
