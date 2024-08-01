@@ -4,7 +4,7 @@ from datetime import datetime, time
 from sqlalchemy.exc import SQLAlchemyError
 
 def pause_active_tasks():
-    end_of_day = datetime.combine(datetime.now().date(), time(23, 59, 59))
+    end_of_day = datetime.combine(datetime.now().date(), time(14, 05, 00))
     try:
         active_tasks = Task.query.filter_by(status='en proceso').all()
         for task in active_tasks:
