@@ -1,6 +1,5 @@
 from flask import Flask
 from apscheduler.schedulers.background import BackgroundScheduler
-from app.scheduled_tasks import pause_active_tasks
 from .database import db
 from .data_manager import load_activity_data, load_project_data, load_worker_data
 from config import config
@@ -30,7 +29,8 @@ def create_app(config_name='default'):
 
     # Set up scheduler
     scheduler = BackgroundScheduler()
-    scheduler.add_job(pause_active_tasks, 'cron', hour=17, minute=40)
+    from .scheduled_tasks import pause_active_tasks
+    scheduler.add_job(pause_active_tasks, 'cron', hour=11, minute=19)
     scheduler.start()
 
     return app

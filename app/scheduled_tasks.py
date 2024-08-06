@@ -1,9 +1,11 @@
 from app.models import Task
-from flask import current_app
 from datetime import datetime
+from flask import current_app
+from app import create_app
 
 def pause_active_tasks():
-    with current_app.app_context():
+    app = create_app()
+    with app.app_context():
         active_tasks = Task.get_all_active_tasks()
         for task in active_tasks:
             Task.update_task(
@@ -12,4 +14,4 @@ def pause_active_tasks():
                 datetime.now(),
                 'Fin de jornada - automatico'
             )
-        current_app.logger.info(f"Automatically paused {len(active_tasks)} active tasks at end of day.")
+        app.logger.info(f"Automatically paused {len(active_tasks)} active tasks at end of day.")
