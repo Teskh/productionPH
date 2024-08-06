@@ -24,11 +24,6 @@ def create_app(config_name='default'):
         app.config['PROJECT_DATA'] = load_project_data(app.config['PROJECT_DATA_PATH'])
         app.config['WORKER_DATA'] = load_worker_data(app.config['WORKER_DATA_PATH'])
 
-    # Set up scheduler
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(pause_active_tasks, 'cron', hour=17, minute=40)
-    scheduler.start()
-
     # Register blueprints
     from app import routes
     app.register_blueprint(routes.bp)
