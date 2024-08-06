@@ -30,7 +30,7 @@ def create_app(config_name='default'):
     # Set up scheduler
     scheduler = BackgroundScheduler()
     from .scheduled_tasks import pause_active_tasks
-    scheduler.add_job(pause_active_tasks, 'cron', hour=11, minute=19)
+    scheduler.add_job(pause_active_tasks, 'cron', hour=17, minute=35)
     scheduler.start()
 
     return app
