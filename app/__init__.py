@@ -28,4 +28,9 @@ def create_app(config_name='default'):
     from app import routes
     app.register_blueprint(routes.bp)
 
+    # Set up scheduler
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(pause_active_tasks, 'cron', hour=17, minute=40)
+    scheduler.start()
+
     return app

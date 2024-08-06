@@ -36,7 +36,7 @@ class Task(db.Model):
 
     @staticmethod
     def get_all_active_tasks():
-        return Task.query.filter_by(status='en proceso').all()
+        return Task.query.filter(Task.status.in_(['en proceso', 'Paused'])).all()
 
     @staticmethod
     def get_active_task(worker_number):
