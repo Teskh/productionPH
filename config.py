@@ -11,8 +11,7 @@ class Config:
     PROJECT_DATA_PATH = os.environ.get('PROJECT_DATA_PATH') or os.path.join(basedir, 'data', 'project_data.xlsx')
     #WORKER_DATA_PATH = os.environ.get('WORKER_DATA_PATH') or os.path.join(basedir, 'data', 'worker_data.xlsx')
     
-    #WORKER_DATA_PATH = r"C:\Users\Thomas\OneDrive - Grupo Patagual\worker_data.xlsx"
-    WORKER_DATA_PATH = r"C:\Users\tschu\Grupo Patagual\worker_data.xlsx"
+    WORKER_DATA_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS047eA-lEVKaum6s6w3-j0pjE0NsC5-oFdtN-RfzzlDEBk3ASxKvX3I2epBhBwm3otgwri3q3e3d6Q/pub?gid=0&single=true&output=csv"
 
 class DevelopmentConfig(Config):
     DEBUG = True

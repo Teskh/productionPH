@@ -1,6 +1,8 @@
 from flask import current_app
 import pandas as pd
 from collections import defaultdict
+import requests
+import io
 from app.models import Task
 from app.database import db
 from sqlalchemy.exc import SQLAlchemyError
@@ -12,8 +14,11 @@ def load_excel_data(file_path):
         print(f"Error loading Excel file {file_path}: {str(e)}")
         return pd.DataFrame()  # Return an empty DataFrame on error
 
-def load_worker_data(worker_data_path):
-    df = load_excel_data(worker_data_path)
+def load_worker_data(worker_data_url):
+    try:
+        response = requests.get(worker_data_url)
+        response.raise_for_status()
+        df = pd.read_csv(io.StringIO(response.text))
     supervisors = defaultdict(list)
     workers = {}
     
@@ -30,6 +35,9 @@ def load_worker_data(worker_data_path):
         }
     
     return dict(supervisors), workers
+    except Exception as e:
+        print(f"Error loading worker data from URL: {str(e)}")
+        return {}, {}
 
 def load_project_data(project_data_path):
     df = load_excel_data(project_data_path)
