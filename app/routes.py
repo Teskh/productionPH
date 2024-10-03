@@ -12,10 +12,12 @@ bp = Blueprint('main', __name__)
 
 @bp.before_request
 def load_data():
-    current_app.supervisors, current_app.workers = load_worker_data(current_app.config['WORKER_DATA_URL'])
-    current_app.projects = load_project_data(current_app.config['PROJECT_DATA_PATH'])
-    current_app.activities = load_activity_data(current_app.config['ACTIVITY_DATA_PATH'])
-    logging.info("Data reloaded successfully")
+    if not hasattr(current_app, 'supervisors') or not hasattr(current_app, 'workers'):
+        current_app.supervisors, current_app.workers = load_worker_data(current_app.config['WORKER_DATA_URL'])
+    if not hasattr(current_app, 'projects'):
+        current_app.projects = load_project_data(current_app.config['PROJECT_DATA_PATH'])
+    if not hasattr(current_app, 'activities'):
+        current_app.activities = load_activity_data(current_app.config['ACTIVITY_DATA_PATH'])
 
 @bp.route('/')
 def index():
