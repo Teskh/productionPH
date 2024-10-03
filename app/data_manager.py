@@ -7,6 +7,11 @@ from app.models import Task
 from app.database import db
 from sqlalchemy.exc import SQLAlchemyError
 
+def reload_worker_data(app):
+    with app.app_context():
+        app.config['WORKER_DATA'] = load_worker_data(app.config['WORKER_DATA_URL'])
+    print("Worker data reloaded successfully")
+
 def load_excel_data(file_path):
     try:
         return pd.read_excel(file_path)
