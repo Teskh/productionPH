@@ -19,22 +19,23 @@ def load_worker_data(worker_data_url):
         response = requests.get(worker_data_url)
         response.raise_for_status()
         df = pd.read_csv(io.StringIO(response.text))
-    supervisors = defaultdict(list)
-    workers = {}
-    
-    for _, row in df.iterrows():
-        supervisor, worker_name, worker_number, specialty, gender = row
         
-        supervisors[supervisor].append(worker_name)
-        workers[worker_name] = {
-            'name': worker_name,
-            'number': worker_number,
-            'specialty': specialty.upper() if specialty else 'Not specified',
-            'supervisor': supervisor,
-            'gender': gender
-        }
-    
-    return dict(supervisors), workers
+        supervisors = defaultdict(list)
+        workers = {}
+        
+        for _, row in df.iterrows():
+            supervisor, worker_name, worker_number, specialty, gender = row
+            
+            supervisors[supervisor].append(worker_name)
+            workers[worker_name] = {
+                'name': worker_name,
+                'number': worker_number,
+                'specialty': specialty.upper() if specialty else 'Not specified',
+                'supervisor': supervisor,
+                'gender': gender
+            }
+        
+        return dict(supervisors), workers
     except Exception as e:
         print(f"Error loading worker data from URL: {str(e)}")
         return {}, {}

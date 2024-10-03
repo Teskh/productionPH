@@ -21,7 +21,7 @@ def create_app(config_name='default'):
         # Load Excel data
         app.config['ACTIVITY_DATA'] = load_activity_data(app.config['ACTIVITY_DATA_PATH'])
         app.config['PROJECT_DATA'] = load_project_data(app.config['PROJECT_DATA_PATH'])
-        app.config['WORKER_DATA'] = load_worker_data(app.config['WORKER_DATA_PATH'])
+        app.config['WORKER_DATA'] = load_worker_data(app.config['WORKER_DATA_URL'])
 
     # Register blueprints
     from app import routes
