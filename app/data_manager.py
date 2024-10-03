@@ -143,5 +143,3 @@ if __name__ == "__main__":
     activities = load_activity_data()
     print("Active tasks:", get_active_tasks())
     print("Task statistics:", get_task_statistics())
-
-
