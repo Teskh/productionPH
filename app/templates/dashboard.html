@@ -348,4 +348,24 @@ function submitComment() {
     });
 }
 </script>
+
+<script>
+let lastUpdateTime = null;
+
+function checkForUpdates() {
+    fetch("{{ url_for('main.check_data_update') }}")
+        .then(response => response.json())
+        .then(data => {
+            if (lastUpdateTime === null) {
+                lastUpdateTime = data.last_update;
+            } else if (data.last_update !== lastUpdateTime) {
+                location.reload();
+            }
+        })
+        .catch(error => console.error('Error checking for updates:', error));
+}
+
+// Check for updates every 30 seconds
+setInterval(checkForUpdates, 30000);
+</script>
 {% endblock %}

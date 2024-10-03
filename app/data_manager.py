@@ -7,9 +7,12 @@ from app.models import Task
 from app.database import db
 from sqlalchemy.exc import SQLAlchemyError
 
+from datetime import datetime
+
 def reload_worker_data(app):
     with app.app_context():
         app.config['WORKER_DATA'] = load_worker_data(app.config['WORKER_DATA_URL'])
+        app.config['LAST_WORKER_DATA_UPDATE'] = datetime.now().isoformat()
     print("Worker data reloaded successfully")
 
 def load_excel_data(file_path):

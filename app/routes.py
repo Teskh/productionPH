@@ -471,6 +471,11 @@ def logout():
     session.pop('user', None)
     return redirect(url_for('main.index'))
 
+@bp.route('/check_data_update')
+def check_data_update():
+    last_update_time = current_app.config.get('LAST_WORKER_DATA_UPDATE')
+    return jsonify({'last_update': last_update_time})
+
 @bp.errorhandler(SQLAlchemyError)
 def handle_db_error(error):
     db.session.rollback()
