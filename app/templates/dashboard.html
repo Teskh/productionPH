@@ -359,7 +359,8 @@ function checkForUpdates() {
             if (lastUpdateTime === null) {
                 lastUpdateTime = data.last_update;
             } else if (data.last_update !== lastUpdateTime) {
-                location.reload();
+                lastUpdateTime = data.last_update;
+                location.reload(true);  // Force reload from server
             }
         })
         .catch(error => console.error('Error checking for updates:', error));

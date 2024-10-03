@@ -3,6 +3,7 @@ from app.models import Task, SQLAlchemyError
 from app.utils import format_timestamp, parse_timestamp
 from datetime import datetime
 from app.database import db
+from app.data_manager import load_worker_data, load_project_data, load_activity_data
 import uuid
 from collections import Counter
 import logging
@@ -11,20 +12,10 @@ bp = Blueprint('main', __name__)
 
 @bp.before_request
 def load_data():
-    if not hasattr(current_app, 'data_loaded'):
-        current_app.supervisors = {}
-        current_app.workers = {}
-        current_app.projects = {}
-        current_app.activities = {}
-        try:
-            current_app.supervisors, current_app.workers = current_app.config['WORKER_DATA']
-            current_app.projects = current_app.config['PROJECT_DATA']
-            current_app.activities = current_app.config['ACTIVITY_DATA']
-            logging.info("Data loaded successfully")
-        except Exception as e:
-            logging.error(f"Error loading data: {str(e)}")
-            flash("Error al cargar los datos. Por favor, contacte al administrador.", "danger")
-        current_app.data_loaded = True
+    current_app.supervisors, current_app.workers = load_worker_data(current_app.config['WORKER_DATA_URL'])
+    current_app.projects = load_project_data(current_app.config['PROJECT_DATA_PATH'])
+    current_app.activities = load_activity_data(current_app.config['ACTIVITY_DATA_PATH'])
+    logging.info("Data reloaded successfully")
 
 @bp.route('/')
 def index():
@@ -100,8 +91,16 @@ def dashboard():
     if 'user' not in session:
         current_app.logger.debug("User not in session, redirecting to index")
         return redirect(url_for('main.index'))
-    user = session['user']
-    current_app.logger.debug(f"User in session: {user}")
+    
+    # Refresh user data
+    worker_number = session['user']['number']
+    user = next((w for w in current_app.workers.values() if w['number'] == worker_number), None)
+    if not user:
+        current_app.logger.error(f"User with number {worker_number} not found in updated data")
+        return redirect(url_for('main.logout'))
+    
+    session['user'] = user
+    current_app.logger.debug(f"Updated user in session: {user}")
     
     if 'name' not in user:
         user['name'] = 'Usuario'
