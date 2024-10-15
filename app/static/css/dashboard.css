@@ -112,4 +112,11 @@
     font-size: 0.9em;
 }
 
+.worker-number {
+    color: #2c3e50;
+    font-size: 1.2em;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
 /* Add more styles as needed */

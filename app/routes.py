@@ -122,7 +122,7 @@ def dashboard():
         current_app.logger.debug(f"Paused tasks: {paused_tasks}")
         
         current_app.logger.debug("Rendering dashboard template")
-        return render_template('dashboard.html', user=user, active_task=active_task, paused_tasks=paused_tasks, welcome_message=welcome_message)
+        return render_template('dashboard.html', user=user, active_task=active_task, paused_tasks=paused_tasks, welcome_message=welcome_message, worker_number=user['number'])
     except SQLAlchemyError as e:
         current_app.logger.error(f"SQLAlchemy error in dashboard: {str(e)}")
         db.session.rollback()
