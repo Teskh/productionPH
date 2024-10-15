@@ -10,6 +10,7 @@
 <div class="header-container">
     <a href="{{ url_for('main.logout') }}" class="back-icon">←</a>
     <h1 class="dashboard-title">{{ welcome_message }}, {{ user.name }}</h1>
+    <p class="worker-number">Número de trabajador: {{ worker_number }}</p>
 </div>
 
 <div id="message-container"></div>
