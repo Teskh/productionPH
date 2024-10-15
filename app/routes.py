@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, session, jsonify, flash, current_app
+from flask import Blueprint, render_template, request, redirect, url_for, session, jsonify, flash, current_app, send_file
 from app.models import Task, SQLAlchemyError
 from app.utils import format_timestamp, parse_timestamp
 from datetime import datetime
@@ -7,6 +7,9 @@ from app.data_manager import load_worker_data, load_project_data, load_activity_
 import uuid
 from collections import Counter
 import logging
+import pandas as pd
+from io import BytesIO
+from sqlalchemy import create_engine
 
 bp = Blueprint('main', __name__)
 
@@ -483,3 +486,34 @@ def handle_db_error(error):
     # Log the error
     print(f"Database error occurred: {str(error)}")
     return "An error occurred with the database. Please try again later.", 500
+
+@bp.route('/api/export_tasks', methods=['GET'])
+def export_tasks():
+    try:
+        # Create a database engine
+        engine = create_engine(current_app.config['SQLALCHEMY_DATABASE_URI'])
+
+        # Read the tasks table into a pandas DataFrame
+        df = pd.read_sql_table('task', engine)
+
+        # Create a BytesIO object to store the Excel file
+        output = BytesIO()
+
+        # Write the DataFrame to an Excel file
+        with pd.ExcelWriter(output, engine='openpyxl') as writer:
+            df.to_excel(writer, index=False, sheet_name='Tasks')
+
+        # Seek to the beginning of the BytesIO object
+        output.seek(0)
+
+        # Return the Excel file as a downloadable attachment
+        return send_file(
+            output,
+            as_attachment=True,
+            download_name='tasks_export.xlsx',
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
+
+    except Exception as e:
+        current_app.logger.error(f"Error exporting tasks: {str(e)}")
+        return jsonify({'success': False, 'message': 'Error exporting tasks'}), 500
